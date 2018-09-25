@@ -1,0 +1,77 @@
+<div #chartTarget>chart</div>
+
+<!-- <select [(ngModel)]="selectedIndicator" id="selectedIndicator" (change)="selectIndicator();">
+  <option value="" disabled selected>indicator</option>
+  <option *ngFor="let item of objectKeys(indicators)" [value]="indicators[item].id">{{indicators[item].name}}</option>
+</select> -->
+
+
+<div class="scrolling-wrapper">
+  <!-- <div class="card"><h2>card</h2></div> -->
+
+  <ul class="indicators" *ngFor="let indicator of objectKeys(indicatorsDefaultParams)">
+    <span class="addBadge">{{indicator}}</span>
+    <button class="add" title="add indicator" (click)="add(indicator)">+</button>
+    <div *ngFor="let param of objectKeys(indicatorsDefaultParams[indicator])">
+      <label>{{param}}:
+        <input type="number" [(ngModel)]="indicators[indicator].params[param]" placeholder="{{indicatorsDefaultParams[indicator][param]}}">
+      </label>
+    </div>
+  </ul>
+</div>
+
+<ul class="indicators">
+  <li *ngFor="let indicator of objectKeys(activeIndicators)">
+    <span class="badge">{{activeIndicators[indicator]}}</span>
+    <button class="delete" title="delete indicator" (click)="delete(indicator)">x</button>
+  </li>
+</ul>
+
+
+<div *ngIf="coins[symbol]">
+  <h2>{{symbol}} Details</h2>
+  <div>
+    <span>avg. price: </span>{{coins[symbol].averagePrice}}</div>
+  <div>
+    <span>price change: </span>{{coins[symbol].percentChange}}% ({{coins[symbol].priceChange}})</div>
+  <div>
+    <span>volume: </span>{{coins[symbol].volume}}</div>
+  <div>
+    <span>quote volume: </span>{{coins[symbol].quoteVolume}}</div>
+  <div>
+    <span>trades: </span>{{coins[symbol].numTrades}}</div>
+  <!-- <div>
+    <label>name:
+      <input [(ngModel)]="coin.symbol" placeholder="symbol"/>
+    </label>
+  </div> -->
+  <!-- <button (click)="getPrice()">PRICE</button> -->
+</div>
+
+<button (click)="backtest()">backtest</button>
+<button (click)="goBack()">go back</button>
+
+<!-- 
+eventType: '24hrTicker',
+  eventTime: 1512629577435,
+  symbol: 'BNBBTC',
+  priceChange: '-0.00002671',
+  percentChange: '-12.844',
+  averagePrice: '0.00019282',
+  prevClose: '0.00020796',
+  close: '0.00018125',
+  closeQty: '55.00000000',
+  bestBid: '0.00018038',
+  bestBidQty: '580.00000000',
+  bestAsk: '0.00018125',
+  bestAskQty: '144.00000000',
+  open: '0.00020796',
+  high: '0.00021300',
+  low: '0.00017555',
+  volume: '3731915.00000000',
+  quoteVolume: '719.59011818',
+  openTime: 1512543177433,
+  closeTime: 1512629577433,
+  firstTradeId: 2248079,
+  lastTradeId: 2284725,
+  numTrades: 36647 -->

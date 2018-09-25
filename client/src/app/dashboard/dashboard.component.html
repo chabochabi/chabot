@@ -1,0 +1,63 @@
+<h3>Top Coins</h3>
+<!-- <div class="grid grid-pad">
+  <a *ngFor="let coin of coins" class="col-1-4" routerLink="/detail/{{coin.id}}">
+    <div class="module coin">
+      <h4>{{coin.name}}</h4>
+    </div>
+  </a>
+</div> -->
+<!-- <div>
+  <table>
+    <thead>
+      <tr>
+        <th *ngFor="let col of cols">
+          {{col.header}}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let symbol of objectKeys(coins24hr); trackBy: trackBySymbol">
+        <td *ngFor="let col of cols">
+          {{coins24hr[symbol][col.field]}}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div> -->
+
+<button (click)="reconnect()">reconnect</button>
+
+<!-- <div ng-if="coins24hr"> -->
+<table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="row-border hover">
+  <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Avg. Price</th>
+      <th>Price Change</th>
+      <th>% Change</th>
+      <th>Volume</th>
+      <th>Quote Vol.</th>
+      <!-- <th>Details</th> -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let coin of objectKeys(coins24hr)">
+      <!-- <td>{{ coins24hr[coin].symbol }}</td> -->
+      <td>
+          <a routerLink="/detail/{{coins24hr[coin].symbol}}">
+            <span class="badge">{{coins24hr[coin].symbol}}</span>
+          </a>
+      </td>
+      <td>{{ coins24hr[coin].averagePrice }}</td>
+      <td>{{ coins24hr[coin].priceChange }}</td>
+      <td>{{ coins24hr[coin].percentChange }}</td>
+      <td>{{ coins24hr[coin].volume }}</td>
+      <td>{{ coins24hr[coin].quoteVolume }}</td>
+      <!-- <td>
+          <a routerLink="/detail/{{coins24hr[coin].symbol}}">
+            <span class="badge">{{coins24hr[coin].symbol}}</span> {{coins24hr[coin].symbol}}
+          </a>
+      </td> -->
+    </tr>
+  </tbody>
+</table>

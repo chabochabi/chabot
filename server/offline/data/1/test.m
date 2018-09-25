@@ -1,0 +1,1 @@
+#klines = dlmread('../kline_POWRBTC.csv', ',',1,0);##klines = dlmread('kline_ASTBTC.csv', ',',1,0);####op = klines(:,1);##hp = klines(:,2);##lp = klines(:,3);##cp = klines(:,4);##ot = klines(:,5);##ct = klines(:,6);##vol = klines(:,7);####chabot(hp,lp,cp,op, vol);chabot('./', 'AST');
