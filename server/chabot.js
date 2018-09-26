@@ -16,9 +16,7 @@ Chabot.prototype.run = async function (mode) {
 
         case 'backtest':
             let sym = 'ETHBTC';
-            this.bt = new Backtest(this.di);
-            this.mm.loadTestData('loadOfflineDone', sym); // event loafOfflineDone causes the backtest to run when loadTestData is done
-            // this.bt.run('ETHBTC');
+            this.mm.loadTestData('offlineLoadDone', sym); // event loafOfflineDone causes the backtest to run when loadTestData is done
             break;
 
         case 'offline':
@@ -76,5 +74,5 @@ if (program.ui) {
 } else {
     console.log('\n * without UI\n\n\n');
     var chabot = new Chabot();
-    chabot.run();
+    chabot.run('online');
 }

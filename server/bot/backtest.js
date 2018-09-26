@@ -5,7 +5,9 @@ var Backtest = function (dataInterface) {
     this.testStrat = new BasicEMA();
     this.di = dataInterface;
 
-    this.di.emitter.on('offlineLoadDone', (function (msg, data) {
+    // this one is used only when backtest runs without UI... TODO
+    this.di.emitter.on('offlineLoadDone', (function (symbol) {
+        console.log(' run backtest on: ', symbol);
         this.run(symbol);
     }).bind(this));
 
@@ -14,6 +16,7 @@ var Backtest = function (dataInterface) {
     }).bind(this));
     
     this.di.emitter.on('backtestDone', (function () {
+        console.log(' BACKTEST DONE');
         this.di.broadcastData('backtestData', this.testStrat.flags);
         this.evaluate();
     }).bind(this));
@@ -25,9 +28,12 @@ Backtest.prototype.evaluate = function () {
     let totalProfit = 0;
     let fee = 0.1;
 
+    console.log(' ... evaluating strategy');
+
     for (let sellTime in profits) {
         
         let buyTime = profits[sellTime].buy.time;
+        console.log(buyTime, this.symbol, sellTime);
         let buyKline = this.di.getCoinDataEntry(this.symbol, parseInt(buyTime))[0];
         let buyPrice = buyKline.open;
         buyPrice = buyPrice - ((fee/100)*buyPrice);
@@ -42,11 +48,11 @@ Backtest.prototype.evaluate = function () {
 
         let date = new Date(parseInt(sellTime));
         if (profit > 0) {
-            // console.log('   (+)  ', profitRatio);
-            // console.log('        ', date.getDay(), date.getHours()+':'+date.getMinutes());
+            console.log('   (+)  ', profitRatio);
+            console.log('        ', date.getDay(), date.getHours()+':'+date.getMinutes());
         } else {
-            // console.log('   (-) ', profitRatio);
-            // console.log('        ', date.getDay(), date.getHours()+':'+date.getMinutes());
+            console.log('   (-) ', profitRatio);
+            console.log('        ', date.getDay(), date.getHours()+':'+date.getMinutes());
         }
     }
 
@@ -54,9 +60,9 @@ Backtest.prototype.evaluate = function () {
 }
 
 Backtest.prototype.run = function (symbol) {
-    console.log('running backtest...');
+    console.log(' running backtest...');
     this.symbol = symbol;
-    this.testStrat = new Strategy();
+    this.testStrat = new BasicEMA();
     this.di.simulateStream(this.symbol);
 }
 

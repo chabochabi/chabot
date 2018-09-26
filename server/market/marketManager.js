@@ -120,7 +120,7 @@ MarketManager.prototype.loadTestData = function (writeEvent, sym) {
         Promise.all(csvFiles).then((file) => {
             console.log(" all csv reads done!");
             // TODO this kinda dirtyyyy
-            this.di.emitEvent(writeEvent, 'offlineData', this.di.getCoinList());
+            this.di.emitEvent(writeEvent, sym);
         });
     });
 }

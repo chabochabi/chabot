@@ -35,6 +35,16 @@ Strategy.prototype.update = function (data) {
 Strategy.prototype.check = function () {
     /*
     *  DO ALL YOUR CHECKS AND DICISIONS
+    *  e.g 
+       if (diff3 < 0 && diff2 >= 0 && diff1 > 0 && this.lastFlag == 0) {
+            this.flags[time] = 'up';
+            this.lastFlag = 1;
+            this.record('buy', time, price);
+        } else if (diff2 > 0 && diff1 <= 0 && this.lastFlag == 1) {
+            this.flags[time] = 'down';
+            this.lastFlag = 0;
+            this.record('sell', time, price);
+        }
     */
 }
 
