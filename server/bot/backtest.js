@@ -1,8 +1,8 @@
 
-const Strategy = require('./strategy');
+const BasicEMA = require('./basicEMA');
 
 var Backtest = function (dataInterface) {
-    this.testStrat = new Strategy();
+    this.testStrat = new BasicEMA();
     this.di = dataInterface;
 
     this.di.emitter.on('offlineLoadDone', (function (msg, data) {

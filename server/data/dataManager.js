@@ -18,7 +18,6 @@ DataManager.prototype.write = function (name, coin, event) {
     } else {
         this.coins[name].insert(coin);
     }
-    console.log(this.coins[name].count());
 }
 
 DataManager.prototype.readLastItems = function (name, amount) {

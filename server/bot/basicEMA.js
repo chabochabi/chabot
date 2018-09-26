@@ -2,26 +2,28 @@
 const EMA = require('../indicators/EMA');
 const MA = require('../indicators/MA');
 
-var Strategy = function () {
-    this.ema10 = new EMA(10);
-    // this.ema15 = new EMA(15);
-    this.ema20 = new EMA(19);
+var BasicEMA = function () {
     this.lastFlag = 0; // 1 for up, 0 for down
     this.profits = {};
     this.buy = {};
     this.flags = {};
+    this.init();
 }
 
-Strategy.prototype.update = function (data) {
+BasicEMA.prototype.init = function() {
+    this.ema10 = new EMA(10);
+    this.ema20 = new EMA(19);
+}
+
+BasicEMA.prototype.update = function (data) {
 
     this.ema10.calc(data);
-    // this.ema15.calc(data);
     this.ema20.calc(data);
-    // console.log(this.ema10.result);
+
     this.check();
 }
 
-Strategy.prototype.check = function () {
+BasicEMA.prototype.check = function () {
 
     let ema10Length = this.ema10.result.length;
     let ema20Length = this.ema20.result.length;
@@ -46,7 +48,7 @@ Strategy.prototype.check = function () {
     }
 }
 
-Strategy.prototype.record = function (action, time, price) {
+BasicEMA.prototype.record = function (action, time, price) {
     if (action == 'buy') {
         this.buy = {
             time: time,
@@ -63,4 +65,4 @@ Strategy.prototype.record = function (action, time, price) {
     }
 }
 
-module.exports = Strategy;
+module.exports = BasicEMA;
