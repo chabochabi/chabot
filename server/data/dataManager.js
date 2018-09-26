@@ -1,15 +1,24 @@
 const loki = require('lokijs');
 
+var MAXCOUNT = 1440; // 24 hrs
+
 var DataManager = function () {
     this.db = new loki('coins.json');
     this.coins = {};
 }
 
-DataManager.prototype.write = function (name, coin) {
+DataManager.prototype.write = function (name, coin, event) {
     if (!this.coins.hasOwnProperty(name)) {
         this.addCoin(name);
     }
-    this.coins[name].insert(coin);
+    if ((this.coins[name].count() >= MAXCOUNT) && (event !== 'offline')) { // ignore limit if its offline, cause we'll probably be backtesting
+        let first = this.readAll(name)[0];
+        this.coins[name].remove(first);
+        this.coins[name].insert(coin);
+    } else {
+        this.coins[name].insert(coin);
+    }
+    console.log(this.coins[name].count());
 }
 
 DataManager.prototype.readLastItems = function (name, amount) {
@@ -34,9 +43,9 @@ DataManager.prototype.getCoinList = function () {
     return Object.keys(this.coins);
 }
 
-DataManager.prototype.getData = function(symbol, openTime) {
+DataManager.prototype.getData = function (symbol, openTime) {
     if (this.hasSymbol(symbol)) {
-        return this.coins[symbol].find({'openTime': openTime});
+        return this.coins[symbol].find({ 'openTime': openTime });
     }
 }
 

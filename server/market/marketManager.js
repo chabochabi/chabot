@@ -101,6 +101,7 @@ MarketManager.prototype.readCSV = async function (file, callback) {
 MarketManager.prototype.loadTestData = function (writeEvent, sym) {
 
     var csvFiles = [];
+
     let loadSymbol = 'kline_'
     if (sym) {
         loadSymbol += sym;
