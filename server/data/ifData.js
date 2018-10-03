@@ -15,14 +15,20 @@ var DataInterface = function(dataManager, broadcast) {
 }
 
 DataInterface.prototype.write = function (name, coin, event) {
-    this.dm.write(name, coin, event);
     switch (event) {
         case 'backtest':
+            this.dm.write(name, coin, event);
             this.emitEvent(event, name, this.dm.readAll(name));
             break;
     
         case 'kline':
-            this.emitEvent(event, name, { klines: coin});
+            this.dm.write(name, coin, event);
+            this.emitEvent(event, name, { klines: coin}); // TODO is this event being used?????
+            break;
+        
+        case 'record':
+            this.dm.saveToFile(name, coin);
+            // this.emitEvent(event, )
             break;
     }
 }
@@ -34,7 +40,6 @@ DataInterface.prototype.emitEvent = function (event, symbol, data) {
 DataInterface.prototype.simulateStream = function (symbol) {
     let data = this.dm.readAll(symbol);
     for (let i=0; i<data.length; i++) {
-        // this.emitEvent('backtest', data.length, data.slice(0,i+1));
         this.emitEvent('backtest', data.slice(0,i+1));
     }
     this.emitEvent('backtestDone');

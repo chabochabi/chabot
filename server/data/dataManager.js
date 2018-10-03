@@ -1,6 +1,8 @@
 const loki = require('lokijs');
+const fs = require('fs');
 
 var MAXCOUNT = 1440; // 24 hrs
+var DATADIR = '/Users/chabochabito/Documents/crypto/data/';
 
 var DataManager = function () {
     this.db = new loki('coins.json');
@@ -18,6 +20,16 @@ DataManager.prototype.write = function (name, coin, event) {
     } else {
         this.coins[name].insert(coin);
     }
+}
+
+DataManager.prototype.saveToFile = function (name, data) {
+    let file = DATADIR+name+'.json';
+    let jsonString = JSON.stringify(data[0])+',\n'; // 0 cause its always only one entry, we're just gonna ignore the json root thing and always just append a ',' at the end... TODO
+    fs.appendFile(file, jsonString, function(err) {
+        if(err) {
+            console.log(err);
+        }
+    }); 
 }
 
 DataManager.prototype.readLastItems = function (name, amount) {

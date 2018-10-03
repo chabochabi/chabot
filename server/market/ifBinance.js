@@ -82,6 +82,7 @@ IFBinance.prototype.getMultipleHistory = async function (type, params) {
 IFBinance.prototype.openStream = function (type, params, callback) {
     switch (type) {
         case "candlesticks":
+            // for(a in params.symbols)console.log(params.symbols[a])
             var stream = this.binance.websockets.candlesticks(params.symbols, params.interval, (candlesticks) => {
                 // callback({ 'stream': stream, 'data': candlesticks });
                 callback(candlesticks.s, candlesticks);

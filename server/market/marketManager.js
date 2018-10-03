@@ -28,40 +28,57 @@ var parseData = function (data, offline = false) {
     return result;
 }
 
-MarketManager.prototype.openAllStreams = async function (type) {
-    this.ifb.allSymbols(async (pairs) => {
-        btcs = pairs["BTC"];
+MarketManager.prototype.openAllStreams = async function (type, config) {
+    this.ifb.allSymbols(async (allSyms) => {
+        btcs = allSyms[config.tosym]; // either BTC, ETH or BNB ... for Binance that is
         params = {
             symbols: btcs,
-            interval: "1m"
+            interval: config.interval
         }
 
-        const histories = [];
+        switch (type) {
+            case 'candlesticks':
+                const histories = [];
 
-        for (const symbol of params.symbols) {
-            p = {
-                symbol: symbol,
-                interval: "1m"
-            }
-            histories.push(this.ifb.getHistory(type, p, (symbol, data) => {
-                let entry = parseData(data);
-                this.di.write(symbol, entry, 'kline');
-            }));
-        }
-
-        Promise.all(histories).then((symbol, data) => {
-            this.ifb.openStream(type, params, (symbol, data) => {
-                let entry = parseData(data.k);
-                if (entry[entry.length - 1].closed) {
-                    this.di.write(symbol, entry, 'kline');
+                for (const symbol of params.symbols) {
+                    p = {
+                        symbol: symbol,
+                        interval: params.interval
+                    }
+                    histories.push(this.ifb.getHistory(type, p, (symbol, data) => {
+                        let entry = parseData(data);
+                        this.di.write(symbol, entry, 'kline');
+                    }));
                 }
-            });
-        });
+
+                Promise.all(histories).then((symbol, data) => {
+                    this.ifb.openStream(type, params, (symbol, data) => {
+                        let entry = parseData(data.k);
+                        if (entry[entry.length - 1].closed) {
+                            this.di.write(symbol, entry, 'kline');
+                        }
+                    });
+                });
+                break;
+
+            case 'record':
+                this.ifb.openStream('candlesticks', params, (symbol, data) => {
+                    let entry = parseData(data.k);
+                    if (entry[entry.length - 1].closed) {
+                        this.di.write(symbol, entry, 'record');
+                    }
+                });
+
+            default:
+                break;
+        }
+
     });
 }
 
+// this function is kinda redundant... we got openAllstreams and this one... its weird TODO
 MarketManager.prototype.startStreaming = function (type, params) {
-    if (type == "24hr") {
+    if (type === "24hr") {
         this.ifb.openStream(type, params, (symbol, data) => {
             if (data.symbol.endsWith("BTC")) {
                 this.di.broadcastData(symbol, data);
@@ -70,7 +87,7 @@ MarketManager.prototype.startStreaming = function (type, params) {
     } else {
         this.ifb.getHistory(type, params, (symbol, data) => {
             let entry = parseData(data);
-            this.di.write(symbol, entry, 'kline'+symbol);
+            this.di.write(symbol, entry, 'kline' + symbol);
         }).then(this.ifb.openStream(type, params, (symbol, data) => {
             let entry = parseData(data.k);
             if (entry[entry.length - 1].closed) {

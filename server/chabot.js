@@ -23,11 +23,23 @@ Chabot.prototype.run = async function (mode) {
             this.mm.loadTestData('offline', 'ETHBTC');
             break;
 
+        case 'record':
+            config = {
+                tosym: 'BTC',
+                interval: '1m'
+            }
+            this.mm.openAllStreams('record', config);
+            break;
+
         case 'online':
             // start 24hr price ticker stream
-            this.mm.startStreaming("24hr", { symbols: false });
+            this.mm.startStreaming('24hr', { symbols: false });
+            config = {
+                tosym: 'BTC',
+                interval: '1m'
+            }
             // start all candlestick streams. for now its only <COIN>BTC tho
-            this.mm.openAllStreams("candlesticks");
+            this.mm.openAllStreams('candlesticks', config);
             break;
     }
 }
@@ -35,7 +47,7 @@ Chabot.prototype.run = async function (mode) {
 Chabot.prototype.requestData = function (type, params) {
     // hmmm this is kinda messed up, couldve been done nicer... TODO????
     if (type === 'backtest') {
-        this.bt.run('ETHBTC');
+        this.bt.run(params['symbol']);
     } else {
         this.di.requestData(type, params);
     }
@@ -48,6 +60,7 @@ program
     .option('--ui', 'run with web UI')
     .option('--offline', 'run with offline data and web UI')
     .option('--bt', 'backtest with offline data')
+    .option('--record', 'record market data')
     .parse(process.argv);
 
 console.log('\n\n',
@@ -71,7 +84,11 @@ if (program.ui) {
     console.log('\n * backtest with offline data');
     var chabot = new Chabot();
     chabot.run('backtest');
-} else {
+} else if (program.record) {
+    console.log('\n * record market data');
+    var chabot = new Chabot();
+    chabot.run('record');
+}else {
     console.log('\n * without UI\n\n\n');
     var chabot = new Chabot();
     chabot.run('online');
