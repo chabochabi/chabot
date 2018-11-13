@@ -1,6 +1,7 @@
 
 const csv = require('csv');
 const fs = require('fs');
+const path = require('path');
 
 const Backtest = require('../backtest/backtest');
 
@@ -35,7 +36,8 @@ BacktestManager.prototype.getBacktestData = function (symbol, source) {
 BacktestManager.prototype.getBacktestSymbolList = function () {
     return new Promise(function (resolve) {
         var csvFiles = [];
-        fs.readdir('/Users/chabochabito/Documents/crypto/js/chabot/server/offline/data', (err, files) => {
+        var offlineData = path.resolve('./offline/data');
+        fs.readdir(offlineData, (err, files) => {
             files.forEach(file => {
                 if (file.startsWith('kline')) {
                     csvFiles.push(file.split("_")[1].split(".")[0]);
@@ -66,7 +68,8 @@ BacktestManager.prototype.loadBacktestData = async function (sym) {
         return -1;
     }
     csvFile += sym + '.csv';
-    file = '/Users/chabochabito/Documents/crypto/js/chabot/server/offline/data/' + csvFile;
+    var offlineData = path.resolve('./offline/data');
+    file = offlineData + '/' + csvFile;
     loadDone = new Promise((resolve) => {
         this.readCSV(file, sym, (symbol, data) => {
             this.dm.writeKlineBacktest(symbol, data);
