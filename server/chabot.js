@@ -1,14 +1,20 @@
-const MarketManager = require('./market/marketManager');
-const DataManager = require('./data/dataManager');
-const DataInterface = require('./data/ifData');
-const Backtest = require('./bot/backtest');
+const MarketManager = require('./managers/marketManager');
+const DataManager = require('./managers/dataManager');
+const BacktestManager = require('./managers/backtestManager');
+const AnalysisManager = require('./managers/analysisManager');
+const EventEmitter = require('events');
+const DataInterface = require('./interfaces/ifData');
+const BackendInterface = require('./interfaces/backendInterface')
 const program = require('commander');
 
-var Chabot = function (broadcast) {
-    this.dm = new DataManager();
-    this.di = new DataInterface(this.dm, broadcast);
-    this.mm = new MarketManager(this.di);
-    this.bt = new Backtest(this.di);
+var Chabot = function (broadcaster) {
+    emitter = new EventEmitter();
+    this.dm = new DataManager(emitter);
+    this.mm = new MarketManager(this.dm, emitter);
+    this.bm = new BacktestManager(this.dm, emitter);
+    this.am = new AnalysisManager(this.dm);
+
+    this.bi = new BackendInterface(this.dm, this.bm, this.am, emitter, broadcaster);
 }
 
 Chabot.prototype.run = async function (mode) {
@@ -16,11 +22,11 @@ Chabot.prototype.run = async function (mode) {
 
         case 'backtest':
             let sym = 'ETHBTC';
-            this.mm.loadTestData('offlineLoadDone', sym); // event loafOfflineDone causes the backtest to run when loadTestData is done
+            this.bm.runBacktest(sym, 'backtest', 'basicEMA');
             break;
 
         case 'offline':
-            this.mm.loadTestData('offline', 'ETHBTC');
+            // this.bm.loadTestData('backtest', 'ETHBTC');
             break;
 
         case 'record':
@@ -39,18 +45,21 @@ Chabot.prototype.run = async function (mode) {
                 interval: '1m'
             }
             // start all candlestick streams. for now its only <COIN>BTC tho
-            this.mm.openAllStreams('candlesticks', config);
+            this.mm.openAllStreams('klines', config);
+            break;
+
+        case 'test':
+            config = {
+                tosym: 'BTC',
+                interval: '1m'
+            }
+            this.mm.openAllStreams('trades', config);
             break;
     }
 }
 
 Chabot.prototype.requestData = function (type, params) {
-    // hmmm this is kinda messed up, couldve been done nicer... TODO????
-    if (type === 'backtest') {
-        this.bt.run(params['symbol']);
-    } else {
-        this.di.requestData(type, params);
-    }
+    this.bi.clientRequest(type, params);
 }
 
 module.exports = Chabot;
@@ -61,6 +70,7 @@ program
     .option('--offline', 'run with offline data and web UI')
     .option('--bt', 'backtest with offline data')
     .option('--record', 'record market data')
+    .option('--test', 'test stuff')
     .parse(process.argv);
 
 console.log('\n\n',
@@ -88,7 +98,11 @@ if (program.ui) {
     console.log('\n * record market data');
     var chabot = new Chabot();
     chabot.run('record');
-}else {
+} else if (program.test) {
+    console.log('\n * test stuff');
+    var chabot = new Chabot();
+    chabot.run('test');
+} else {
     console.log('\n * without UI\n\n\n');
     var chabot = new Chabot();
     chabot.run('online');

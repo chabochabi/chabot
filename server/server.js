@@ -32,7 +32,7 @@ io.on('connection', function (socket) {
         
         if ('cmd' in msg && 'options' in msg) {
             chabot.requestData(msg['cmd'], msg['options']);
-            console.log(msg);
+            // console.log(msg);
         }
 
     });

@@ -2,17 +2,38 @@
 const EMA = require('../indicators/EMA');
 const MA = require('../indicators/MA');
 
-var BasicEMA = function () {
+var BasicEMA = function (params) {
     this.lastFlag = 0; // 1 for up, 0 for down
     this.profits = {};
     this.buy = {};
     this.flags = {};
+    this.params = params;
     this.init();
 }
 
+BasicEMA.prototype.checkParams = function () {
+    necessaryParams = ['short', 'long'];
+    if (this.params) {
+        for (let i in necessaryParams) {
+            if (!(i in this.params)) {
+                return false;
+            }
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
 BasicEMA.prototype.init = function() {
-    this.ema10 = new EMA(10);
-    this.ema20 = new EMA(19);
+    if (!this.checkParams()) {
+        this.params = {
+            short:  10,
+            long: 19
+        }
+    }
+    this.ema10 = new EMA(this.params.short);
+    this.ema20 = new EMA(this.params.long);
 }
 
 BasicEMA.prototype.update = function (data) {

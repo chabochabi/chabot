@@ -18,7 +18,6 @@ MA.prototype.calc = function (data) {
             if (i <= this.frameLength - 1) {
                 cpSum += entry.close;
             } else {
-                // console.log(i, frameLength, data[i-(frameLength-1)]);
                 maValue = cpSum / this.frameLength;
                 cpSum += (entry.close - data[i - (this.frameLength)].close);
                 maData.push({

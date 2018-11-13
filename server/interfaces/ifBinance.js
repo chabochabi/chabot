@@ -41,7 +41,7 @@ IFBinance.prototype.allSymbols = function (callback) {
 
 IFBinance.prototype.getHistory = async function (type, params, callback) {
     switch (type) {
-        case "candlesticks":
+        case "klines":
             return new Promise((resolve, reject) => {
                 this.binance.candlesticks(params.symbol, params.interval, (error, ticks, symbol) => {
                     let data = [];
@@ -62,8 +62,11 @@ IFBinance.prototype.getHistory = async function (type, params, callback) {
             break;
 
         case "trades":
-            this.binance.trades(params.symbol, (error, trades, symbol) => {
-                console.log(symbol + " trade history", trades);
+            return new Promise((resolve, reject) => {
+                this.binance.trades(params.symbol, (error, trades, symbol) => {
+                    callback(symbol,trades);
+                    resolve(symbol,trades);
+                }, { limit: 500, endTime: Date.now() });
             });
             break;
     }
@@ -81,23 +84,20 @@ IFBinance.prototype.getMultipleHistory = async function (type, params) {
 
 IFBinance.prototype.openStream = function (type, params, callback) {
     switch (type) {
-        case "candlesticks":
-            // for(a in params.symbols)console.log(params.symbols[a])
-            var stream = this.binance.websockets.candlesticks(params.symbols, params.interval, (candlesticks) => {
-                // callback({ 'stream': stream, 'data': candlesticks });
-                callback(candlesticks.s, candlesticks);
+        case "klines":
+            var stream = this.binance.websockets.candlesticks(params.symbols, params.interval, (candlestick) => {
+                callback(candlestick.s, candlestick, "kline");
             });
             break;
 
         case "trades":
-            var stream = this.binance.websockets.trades(params.symbols, (trades) => {
-                callback({ 'stream': stream, 'data': trades });
+            var stream = this.binance.websockets.trades(params.symbols, (trade) => {
+                callback(trade.s, trade, "trade");
             });
             break;
 
         case "24hr":
             var stream = this.binance.websockets.prevDay(params.symbols, (error, response) => {
-                // callback({ 'stream': stream, 'data': response });
                 callback("24hr", response);
             });
             break;
@@ -105,7 +105,6 @@ IFBinance.prototype.openStream = function (type, params, callback) {
         case "miniTicker":
             var stream = this.binance.websockets.miniTicker(data => {
                 callback('miniTicker', data);
-                // callback({'stream': stream, 'data': data})
             })
     }
 }
@@ -118,13 +117,13 @@ IFBinance.prototype.stopStream = function () {
 }
 
 function dummy(symbol, data) {
-    console.log(symbol);
+    console.log(symbol, data);
 }
 
 params = {
     // symbol: "ETHBTC",
     // symbols: "ETHBTC",
-    symbols: ["ETHBTC", "TRXBTC", "ETHBTC", "TRXBTC", "ETHBTC", "TRXBTC", "ETHBTC", "TRXBTC", "ETHBTC", "TRXBTC"],
+    symbols: ["ETHBTC", "TRXBTC"],
     // symbols: false,
     interval: "1m"
 }
@@ -133,9 +132,10 @@ module.exports = IFBinance;
 
 // var ifb = new IFBinance();
 // ifb.getMultipleHistory("candlesticks", params);
+// ifb.getHistory("trades", params, dummy)
 // ifb.getHistory("candlesticks", params, dummy).then(ifb.openStream("candlesticks", params, dummy));
 // ifb.openStream("candlesticks", params, dummy);
-// ifb.allSymbols(dummy);
+// ifb.allSymbols(dummy);/
 
 // module.exports.getHistory("trades", params, dummy);
 // module.exports.openStream("chart", params, dummy);
