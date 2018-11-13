@@ -6,9 +6,10 @@
   <!-- <mat-drawer-container autosize> -->
 
   <mat-sidenav-content>
-    <div class="chart">
+    <!-- <div class="chart">
       <div #chartTarget>chart</div>
-    </div>
+    </div> -->
+    <app-coin-analysis></app-coin-analysis>
 
     <ul class="indicators">
       <li *ngFor="let indicator of objectKeys(activeIndicators)">

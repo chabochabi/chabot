@@ -1,22 +1,20 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { Observable, of } from 'rxjs';
 
 import * as Highstock from 'highcharts/highstock.src';
 import * as Highcharts from 'highcharts/highcharts';
 
-import { CoinService } from '../coin.service';
+import { CoinService } from '../../coin.service';
 
 @Component({
-  selector: 'app-coin-detail',
-  templateUrl: './coin-detail.component.html',
-  styleUrls: ['./coin-detail.component.css']
+  selector: 'app-coin-analysis',
+  templateUrl: './coin-analysis.component.html',
+  styleUrls: ['./coin-analysis.component.css']
 })
-export class CoinDetailComponent implements OnInit {
+export class CoinAnalysisComponent implements OnInit {
 
   @ViewChild('chartTarget') chartTarget: ElementRef;
-  @ViewChild('backtestSidenav') backtestSidenav: ElementRef;
 
   // to get alls keys of an object as an array
   objectKeys = Object.keys;
@@ -24,24 +22,14 @@ export class CoinDetailComponent implements OnInit {
   symbol: string;
   source: string;
   chart: Highstock.ChartObject;
-
-  coins = {};
   coinData: any[] = [];
-
   lastTime: number = 0; // bah! not nice... TODO
-
   chartRendered: boolean = false; // also not nice... TODO
-
-  // stores all subscribtions
   subs: any[] = [];
-
-  // selectedIndicator: string;
+  prevAxis: string = 'ohlc';
   indicators: any = {};
   indicatorsDefaultParams: any = {};
   activeIndicators: any = {};
-
-  selectedStrategy: string;
-  strategies = [];
 
   // TODO fix this static BS
   indicatorAxis: any = {
@@ -51,9 +39,7 @@ export class CoinDetailComponent implements OnInit {
       ctr: 1
     }
   }
-  prevAxis: string = 'ohlc';
 
-  // sizes for the chart yaxis
   SIZES = {
     data: {
       top: 0,
@@ -70,17 +56,22 @@ export class CoinDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private coinService: CoinService,
     private location: Location
-  ) {
-    this.coinService.get24hrList()
-      .subscribe(coins => {
-        this.coins = coins;
-      });
+  ) { }
+
+  ngOnInit() {
+    this.subRoute();
+    this.subHistory();
+    this.subCandlestickUpdate();
+    this.subIndicatorsData();
   }
 
-  ngOnInit(): void {
+  ngOnDestroy(): void {
+    for (let sub of this.subs) {
+      sub.unsubscribe();
+    }
+  }
 
-    // this.getSymbol();
-
+  private subRoute() {
     this.subs.push(this.route.params.subscribe(params => {
       this.symbol = params['id'];
       this.source = params['source'];
@@ -90,10 +81,11 @@ export class CoinDetailComponent implements OnInit {
         cmd = 'history';
       }
       // get coin history
-      this.coinService.send({ cmd: cmd, options: { symbol: this.symbol, source: this.source} });
+      this.coinService.send({ cmd: cmd, options: { symbol: this.symbol, source: this.source } });
     }));
+  }
 
-    // update coinData on incoming history
+  private subHistory() {
     this.subs.push(this.coinService.onCandlestickHistory(this.symbol)
       .subscribe((candlesticks: any) => {
         for (let i = 0; i < candlesticks.klines.length; i++) {
@@ -103,70 +95,16 @@ export class CoinDetailComponent implements OnInit {
         }
         this.candlestickChart();
       }));
+  }
 
-    // update coinData on incoming new candlesticks
-    this.subs.push(this.coinService.onCandlestickUpdate(this.symbol)
-      .subscribe((candlesticks: any) => {
-        this.updateChart(candlesticks.klines);
-      }));
-
-    // request a list of all availabe indicators
-    this.coinService.send({ cmd: 'indicators', options: { symbol: this.symbol} });
-    this.subs.push(this.coinService.onIndicators(this.symbol)
-      .subscribe((indicators: any) => {
-        let vals = [];
-        for (let val in indicators) {
-          this.indicators[val] = {
-            name: val,
-            id: val.toLowerCase(),
-            params: indicators[val],
-          }
-          this.indicatorsDefaultParams[val] = {};;
-          for (let param in indicators[val]) {
-            this.indicatorsDefaultParams[val][param] = indicators[val][param];
-          }
-        }
-      }));
-
-    this.subs.push(this.coinService.onBacktestData()
-      .subscribe((data: any) => {
-        let flags = [];
-        let flagColor = 'red';
-        for (let entry in data.flags) {
-          flagColor = 'red';
-          if (data.flags[entry] === 'up') {
-            flagColor = 'green';
-          }
-          flags.push({
-            x: parseInt(entry),
-            title: data.flags[entry],
-            text: data.flags[entry],
-            color: flagColor,
-            fillColor: flagColor
-          })
-        }
-
-        this.chart.addSeries({
-          type: 'flags',
-          id: 'flags',
-          data: flags,
-          onSeries: 'series-ohlc',
-          shape: 'squarepin',
-          width: 16
-        })
-      }));
-
-    // display indicator data on incoming indicators .... TODO this shit is waaaaay too long, maybe split up into functions or something like that    8=====3 (_o_)
+  private subIndicatorsData() {
     this.subs.push(this.coinService.onIndicatorsData(this.symbol)
       .subscribe((data: any) => {
         let vals = [];
         for (let indicator in data) {
           let id = indicator;
           for (let val of data[indicator].data) {
-            vals.push([
-              parseInt(val.time),
-              parseFloat(val.value)
-            ]);
+            vals.push([ parseInt(val.time), parseFloat(val.value) ]);
           }
 
           for (let param in data[indicator].params) {
@@ -231,7 +169,6 @@ export class CoinDetailComponent implements OnInit {
             let lastAxisIdx = this.indicatorAxis[indicator].index;
 
             if (indicator == 'rsi') {
-
               this.chart.addSeries({
                 type: 'line',
                 id: id,
@@ -240,22 +177,15 @@ export class CoinDetailComponent implements OnInit {
                 yAxis: lastAxisIdx
               })
             } else if (indicator == 'macd') {
-
               let macd = [];
               let signal = [];
 
               for (let val of data[indicator].data.macd) {
-                macd.push([
-                  parseInt(val.time),
-                  parseFloat(val.value)
-                ]);
+                macd.push([ parseInt(val.time), parseFloat(val.value) ]);
               }
 
               for (let val of data[indicator].data.signal) {
-                signal.push([
-                  parseInt(val.time),
-                  parseFloat(val.value)
-                ]);
+                signal.push([ parseInt(val.time), parseFloat(val.value) ]);
               }
 
               this.chart.addSeries({
@@ -276,48 +206,38 @@ export class CoinDetailComponent implements OnInit {
 
             }
           } else if (indicator === 'boll') {
-
-            let ma = [];
-            let upper = [];
-            let lower = [];
+            let ma = [], upper = [], lower = [];
             let val;
 
-            for (let i=0; i<data[indicator].data.ma.length; i++) {
+            for (let i = 0; i < data[indicator].data.ma.length; i++) {
               val = data[indicator].data.ma[i];
-              ma.push([
-                parseInt(val.time),
-                parseFloat(val.value),
-              ])
+              ma.push([ parseInt(val.time), parseFloat(val.value) ]);
+
               val = data[indicator].data.lowerBoll[i];
-              lower.push([
-                parseInt(val.time),
-                parseFloat(val.value),
-              ])
+              lower.push([ parseInt(val.time), parseFloat(val.value) ]);
+
               val = data[indicator].data.upperBoll[i];
-              upper.push([
-                parseInt(val.time),
-                parseFloat(val.value),
-              ])
+              upper.push([ parseInt(val.time), parseFloat(val.value) ]);
             }
 
             this.chart.addSeries({
               type: 'line',
-              id: id+'_ma',
-              name: id+'_ma',
+              id: id + '_ma',
+              name: id + '_ma',
               data: ma
             })
 
             this.chart.addSeries({
               type: 'line',
-              id: id+'_lower',
-              name: id+'_lower',
+              id: id + '_lower',
+              name: id + '_lower',
               data: lower
             })
 
             this.chart.addSeries({
               type: 'line',
-              id: id+'_upper',
-              name: id+'_upper',
+              id: id + '_upper',
+              name: id + '_upper',
               data: upper
             })
 
@@ -333,126 +253,14 @@ export class CoinDetailComponent implements OnInit {
           }
         }
       }));
-
-      this.initStrategies();
   }
 
-  initStrategies(): void {
-    this.coinService.send({ cmd: 'strategies', options: { symbol: this.symbol } });
-      this.subs.push(this.coinService.onStrategies(this.symbol)
-      .subscribe((strategies: any) => {
-        this.strategies = strategies;
+  private subCandlestickUpdate() {
+    this.subs.push(this.coinService.onCandlestickUpdate(this.symbol)
+      .subscribe((candlesticks: any) => {
+        this.updateChart(candlesticks.klines);
       }));
   }
-
-  ngOnDestroy(): void {
-    for (let sub of this.subs) {
-      sub.unsubscribe();
-    }
-  }
-
-  goBack(): void {
-    this.location.back();
-  }
-
-  runBacktest(): void {
-    this.coinService.send({ cmd: 'run-backtest', options: { symbol: this.symbol, strategy: this.selectedStrategy, source: this.source} });
-  }
-
-  getActiveIndicators(): Observable<any> {
-    return of(this.activeIndicators);
-  }
-
-  delete(id: string) {
-    let indicator = id.split('_')[0];
-    let deleteIDs = [];
-
-    if (indicator === 'rsi' || indicator === 'macd') {
-
-      let newTop = 0;
-      let newHeight = this.SIZES.data.heigth - this.SIZES.offset;
-
-      this.indicatorAxis[indicator].ctr -= 1;
-      if (this.indicatorAxis[indicator].ctr == 0) {
-
-        delete this.indicatorAxis[indicator];
-        let axisCtr = this.objectKeys(this.indicatorAxis).length;
-        if (axisCtr > 1) {
-          newTop = this.SIZES.volume.top - (this.SIZES.volume.top / (2 ** (axisCtr - 1)));
-          newHeight = (this.SIZES.volume.top / (2 ** (axisCtr - 1))) - this.SIZES.offset;
-        }
-        
-        // not scalable... TODO
-        this.prevAxis = this.objectKeys(this.indicatorAxis)[axisCtr-1];
-        let previousYAxis = this.chart.get(this.prevAxis);
-
-        previousYAxis.update(
-          Highstock.merge(
-            {
-              top: newTop + '%',
-              height: newHeight + '%'
-            }
-          )
-        );
-
-        deleteIDs.push(indicator);
-      } else {
-        if (indicator == 'macd') {
-          deleteIDs.push(id + '_macd');
-          deleteIDs.push(id + '_signal');
-        } else {
-          deleteIDs.push(id);
-        }
-      }
-    } else if (indicator === 'boll') {
-      deleteIDs.push(id+'_ma');
-      deleteIDs.push(id+'_upper');
-      deleteIDs.push(id+'_lower');
-    } else {
-      deleteIDs.push(id);
-    }
-
-    for (let i of deleteIDs) {
-      this.chart.get(i).remove();
-    }
-    delete this.activeIndicators[id];
-  }
-
-  add(indicator: string) {
-
-    let params = this.indicators[indicator]['params'];
-    let id = indicator.toLowerCase();
-
-    for (let p in params) {
-      id += '_' + params[p];
-    }
-
-    if (id in this.activeIndicators) {
-      return;
-    }
-
-    this.coinService.send({ cmd: 'indicatorsData', options: { symbol: this.symbol, indicator: { type: indicator, params }, source: this.source  } });
-    this.getActiveIndicators()
-      .subscribe(indicators => {
-        indicators[id] = indicator;
-      });
-  }
-
-  // private selectIndicator(): void {
-
-  //   if (this.selectedIndicator in this.activeIndicators) {
-  //     return;
-  //   }
-
-  //   let ind = this.selectedIndicator.toUpperCase();
-  //   let params = this.indicators[ind]['params'];
-
-  //   this.coinService.send({ cmd: 'indicatorsData', options: { symbol: this.symbol, indicator: { type: this.selectedIndicator.toUpperCase(), params } } });
-  //   this.getActiveIndicators()
-  //     .subscribe(indicators => {
-  //       indicators[this.selectedIndicator] = this.selectedIndicator.toUpperCase();
-  //     });
-  // }
 
   private updateChart(candlestick): void {
     let { openTime: openTime, open: open, high: high, low: low, close: close, volume: volume, closedTime: closeTime, closed: closed } = candlestick;
@@ -492,7 +300,7 @@ export class CoinDetailComponent implements OnInit {
     let ohlc = [];
     let volume = [];
 
-    for (let i=1; i < this.coinData.length; i += 1) {
+    for (let i = 1; i < this.coinData.length; i += 1) {
       ohlc.push([
         parseInt(this.coinData[i][4]), // the date
         parseFloat(this.coinData[i][0]), // open
@@ -602,6 +410,5 @@ export class CoinDetailComponent implements OnInit {
     };
 
     this.chart = Highstock.stockChart(this.chartTarget.nativeElement, options);
-
   }
 }
