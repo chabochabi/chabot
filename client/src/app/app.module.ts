@@ -15,6 +15,8 @@ import { DataTablesModule } from 'angular-datatables';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 
 import { AppComponent } from './app.component';
 import { BacktestCoinsComponent } from './backtest-coins/backtest-coins.component';
@@ -50,6 +52,8 @@ import { OverviewComponent } from './overview/overview.component';
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
+    MatCardModule,
+    MatButtonModule,
     ReactiveFormsModule,
     BrowserAnimationsModule
   ],

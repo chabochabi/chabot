@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
 // import { BacktestCoin } from '../coin';
 // import { COINS } from '../all-coins';
 import { CoinService } from '../coin.service';
@@ -15,10 +15,32 @@ export class BacktestCoinsComponent implements OnInit {
   constructor(private coinService: CoinService) { }
 
   ngOnInit() {
-    this.coinService.getBacktestCoinsList().subscribe(coins => this.coins = coins)
+    this.coinService.getBacktestCoinsList().subscribe(coins => {
+      this.coins = coins;
+    });
     // this.coinService.send({ cmd: 'backtest', options: { symbol: 'all' } });
   }
   ngAfterViewInit() {
     this.coinService.send({ cmd: 'backtestSymbolsList', options: { symbol: 'all' } });
+  }
+
+  applyFilter(filterValue: string) {
+    var displayCoins = this.coins.filter((coin) => {
+      return coin.toLowerCase().indexOf(filterValue.toLowerCase()) > -1;
+    });
+    
+    var hideCoins = this.coins.filter((coin) => {
+      return coin.toLowerCase().indexOf(filterValue.toLowerCase()) < 0;
+    });
+
+    hideCoins.forEach(coin => {
+      var coinRef = document.getElementById(coin);
+      coinRef.style.display = "none";
+    });
+
+    displayCoins.forEach(coin => {
+      var coinRef = document.getElementById(coin);
+      coinRef.style.display = "block";
+    });
   }
 }

@@ -1,10 +1,17 @@
-<h2>Backtest Coins</h2>
 <div class="backtest-coins-container">
-  <ul class="coins">
-    <li *ngFor="let coin of coins">
-      <a [routerLink]="['/details', coin , 'backtest']">
-        <span class="badge">{{coin}}</span>
-      </a>
-    </li>
-  </ul>
+  <mat-form-field>
+    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="search coin ..." type="text">
+  </mat-form-field>
+  <div class="backtest-coins-grid">
+    <mat-card class="coin-card" *ngFor="let coin of coins" [attr.id]="coin">
+      <mat-card-header>
+        <mat-card-title>
+          <button mat-raised-button color="primary" [routerLink]="['/details', coin , 'backtest']">{{coin}}</button>
+        </mat-card-title>
+      </mat-card-header>
+      <!-- <mat-card-actions>
+        <button mat-raised-button color="primary" [routerLink]="['/details', coin , 'backtest']">Go!</button>
+      </mat-card-actions> -->
+    </mat-card>
+  </div>
 </div>
