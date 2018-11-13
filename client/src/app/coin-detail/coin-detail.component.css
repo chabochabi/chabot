@@ -1,4 +1,4 @@
-.indicators {
+/* .indicators {
     margin: 0 0 2em 0;
     list-style-type: none;
     padding: 0;
@@ -66,45 +66,61 @@
     border-radius: 4px 0 0 4px;
   }
   
-  button {
-    background-color: #eee;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    cursor: hand;
-    font-family: Arial;
-  }
-  
-  button:hover {
-    background-color: #cfd8dc;
-  }
-  
-  button.delete {
-    position: relative;
-    left: 194px;
-    top: -32px;
-    background-color: gray !important;
-    color: white;
-  }
+button {
+  background-color: #eee;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  cursor: hand;
+  font-family: Arial;
+}
 
-  button.add {
-    position: sticky;
-    /* left: 194px; */
-    /* top: -32px; */
-    background-color: gray !important;
-    color: white;
-  }
+button:hover {
+  background-color: #cfd8dc;
+}
+
+button.delete {
+  position: relative;
+  left: 194px;
+  top: -32px;
+  background-color: gray !important;
+  color: white;
+}
+
+button.add {
+  position: sticky;
+  background-color: gray !important;
+  color: white;
+}
 
 .scrolling-wrapper {
   overflow-x: auto;
   display: flex;
   flex-wrap: nowrap;
-  /* overflow-x: scroll;
-  overflow-y: hidden;
-  white-space: nowrap; */
 }
-  .card {
-    flex: 0 0 auto;
-    /* display: inline-block; */
-  }
+
+.details-container {
+  position: absolute;
+  top: 60px;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+}
+
+.backtest-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  background: rgba(255, 0, 0, 0.5);
+}
+
+.chart {
+  width: 80%;
+  overflow: auto;
+} */
+
+mat-sidenav {
+  width: 15%;
+}

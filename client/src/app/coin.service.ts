@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import * as socketio from 'socket.io-client';
 
-import { COINS, OFFLINE_COINS} from './all-coins';
+import { COINS, BACKTEST_COINS} from './all-coins';
 
 @Injectable({ providedIn: 'root' })
 
@@ -22,10 +22,10 @@ export class CoinService {
       COINS[data.symbol] = data;
     });
     
-    this.socket.on('offline:all', (data: any) => {
-      for (let symbol of data.offline) {
-        if (OFFLINE_COINS.indexOf(symbol) < 0) {
-          OFFLINE_COINS.push(symbol);
+    this.socket.on('backtestSymbolsList:all', (data: any) => {
+      for (let symbol of data.backtestSymbols) {
+        if (BACKTEST_COINS.indexOf(symbol) < 0) {
+          BACKTEST_COINS.push(symbol);
         }
       }
     });
@@ -58,8 +58,8 @@ export class CoinService {
     return of(COINS);
   }
 
-  public getOfflineList(): Observable<any[]> {
-    return of(OFFLINE_COINS);
+  public getBacktestCoinsList(): Observable<any[]> {
+    return of(BACKTEST_COINS);
   }
 
   public onCandlestickHistory(symbol: string): Observable<any> {
@@ -77,6 +77,12 @@ export class CoinService {
   public onIndicators(symbol: string): Observable<any> {
     return new Observable<any>(observer => {
       this.socket.on('indicators:'+symbol, (data: any) => observer.next(data));
+    })
+  }
+
+  public onStrategies(symbol: string): Observable<any> {
+    return new Observable<any>(observer => {
+      this.socket.on('strategies:'+symbol, (data: any) => observer.next(data));
     })
   }
 
@@ -101,6 +107,7 @@ export class CoinService {
   public onBacktestData(): Observable<any> {
     return new Observable<any>(observer => {
       this.socket.on('backtestData', (data: any) => observer.next(data));
+      // this.socket.on('backtest', (data: any) => observer.next(data));
     })
   }
 

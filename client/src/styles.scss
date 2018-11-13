@@ -1,0 +1,14 @@
+
+@import '~@angular/material/_theming.scss';
+@import 'chabot-theme.scss';
+
+@include mat-core();
+
+// $default-theme: mat-dark-theme(mat-palette($mat-green, A400), mat-palette($mat-light-blue, A400));
+// @include angular-material-theme($default-theme);
+
+@include angular-material-theme($chabot-theme);
+
+body {
+    background-color: #222222;
+}

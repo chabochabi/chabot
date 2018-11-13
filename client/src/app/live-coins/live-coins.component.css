@@ -1,0 +1,45 @@
+table {
+    width: 100%;
+}
+
+tr:nth-child(even) {
+    background-color: #666666
+}
+
+tr:nth-child(odd) {
+    background-color: #595959
+}
+  
+td, th {
+    width: 25%;
+    color: #cccccc;
+}
+
+th {
+    font-size: 14px;
+    background-color: #3d3d3d;
+}
+
+.mat-form-field {
+    font-size: 14px;
+    width: 100%;
+}
+
+.mat-paginator {
+    background-color: #3d3d3d;
+}
+
+.symbol {
+    padding: 5px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.symbol:visited, .symbol:link {
+    color: #000000;
+}
+
+.symbol:hover {
+    border-radius: 4px;
+    background-color: #b53035;
+}

@@ -15,11 +15,13 @@ import { CoinService } from '../coin.service';
 export class CoinDetailComponent implements OnInit {
 
   @ViewChild('chartTarget') chartTarget: ElementRef;
+  @ViewChild('backtestSidenav') backtestSidenav: ElementRef;
 
   // to get alls keys of an object as an array
   objectKeys = Object.keys;
 
   symbol: string;
+  source: string;
   chart: Highstock.ChartObject;
 
   coins = {};
@@ -36,6 +38,9 @@ export class CoinDetailComponent implements OnInit {
   indicators: any = {};
   indicatorsDefaultParams: any = {};
   activeIndicators: any = {};
+
+  selectedStrategy: string;
+  strategies = [];
 
   // TODO fix this static BS
   indicatorAxis: any = {
@@ -73,10 +78,20 @@ export class CoinDetailComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.getSymbol();
+    // this.getSymbol();
 
-    // get coin history
-    this.coinService.send({ cmd: 'history', options: { symbol: this.symbol } });
+    this.subs.push(this.route.params.subscribe(params => {
+      this.symbol = params['id'];
+      this.source = params['source'];
+      var cmd = 'backtestHistory';
+      if (this.source !== "backtest") {
+        this.source = "kline"; // TODO this is dumb as shit... client should not know the keys for marketData in the DataManager
+        cmd = 'history';
+      }
+      // get coin history
+      this.coinService.send({ cmd: cmd, options: { symbol: this.symbol, source: this.source} });
+    }));
+
     // update coinData on incoming history
     this.subs.push(this.coinService.onCandlestickHistory(this.symbol)
       .subscribe((candlesticks: any) => {
@@ -91,11 +106,11 @@ export class CoinDetailComponent implements OnInit {
     // update coinData on incoming new candlesticks
     this.subs.push(this.coinService.onCandlestickUpdate(this.symbol)
       .subscribe((candlesticks: any) => {
-        this.updateChart(candlesticks.klines[0]);
+        this.updateChart(candlesticks.klines);
       }));
 
     // request a list of all availabe indicators
-    this.coinService.send({ cmd: 'indicators', options: { symbol: this.symbol } });
+    this.coinService.send({ cmd: 'indicators', options: { symbol: this.symbol} });
     this.subs.push(this.coinService.onIndicators(this.symbol)
       .subscribe((indicators: any) => {
         let vals = [];
@@ -116,21 +131,19 @@ export class CoinDetailComponent implements OnInit {
       .subscribe((data: any) => {
         let flags = [];
         let flagColor = 'red';
-        for (let entry in data) {
+        for (let entry in data.flags) {
           flagColor = 'red';
-          if (data[entry] === 'up') {
+          if (data.flags[entry] === 'up') {
             flagColor = 'green';
           }
           flags.push({
             x: parseInt(entry),
-            title: data[entry],
-            text: data[entry],
+            title: data.flags[entry],
+            text: data.flags[entry],
             color: flagColor,
             fillColor: flagColor
           })
         }
-
-        console.log(flags);
 
         this.chart.addSeries({
           type: 'flags',
@@ -142,11 +155,10 @@ export class CoinDetailComponent implements OnInit {
         })
       }));
 
-    // display indicator data on incoming indicators
+    // display indicator data on incoming indicators .... TODO this shit is waaaaay too long, maybe split up into functions or something like that    8=====3 (_o_)
     this.subs.push(this.coinService.onIndicatorsData(this.symbol)
       .subscribe((data: any) => {
         let vals = [];
-
         for (let indicator in data) {
           let id = indicator;
           for (let val of data[indicator].data) {
@@ -247,7 +259,6 @@ export class CoinDetailComponent implements OnInit {
 
               this.chart.addSeries({
                 type: 'line',
-                // id: indicator,
                 id: id + '_macd',
                 name: id + '_macd',
                 data: macd,
@@ -256,7 +267,6 @@ export class CoinDetailComponent implements OnInit {
 
               this.chart.addSeries({
                 type: 'line',
-                // id: indicator,
                 id: id + '_signal',
                 name: id + '_signal',
                 data: signal,
@@ -264,6 +274,52 @@ export class CoinDetailComponent implements OnInit {
               })
 
             }
+          } else if (indicator === 'boll') {
+
+            let ma = [];
+            let upper = [];
+            let lower = [];
+            let val;
+
+            for (let i=0; i<data[indicator].data.ma.length; i++) {
+              val = data[indicator].data.ma[i];
+              ma.push([
+                parseInt(val.time),
+                parseFloat(val.value),
+              ])
+              val = data[indicator].data.lowerBoll[i];
+              lower.push([
+                parseInt(val.time),
+                parseFloat(val.value),
+              ])
+              val = data[indicator].data.upperBoll[i];
+              upper.push([
+                parseInt(val.time),
+                parseFloat(val.value),
+              ])
+            }
+
+            this.chart.addSeries({
+              type: 'line',
+              id: id+'_ma',
+              name: id+'_ma',
+              data: ma
+            })
+
+            this.chart.addSeries({
+              type: 'line',
+              id: id+'_lower',
+              name: id+'_lower',
+              data: lower
+            })
+
+            this.chart.addSeries({
+              type: 'line',
+              id: id+'_upper',
+              name: id+'_upper',
+              data: upper
+            })
+
           } else {
             this.chart.addSeries({
               type: 'line',
@@ -274,9 +330,17 @@ export class CoinDetailComponent implements OnInit {
               // yAxis: 2
             })
           }
-
-          console.log(this.indicatorAxis);
         }
+      }));
+
+      this.initStrategies();
+  }
+
+  initStrategies(): void {
+    this.coinService.send({ cmd: 'strategies', options: { symbol: this.symbol } });
+      this.subs.push(this.coinService.onStrategies(this.symbol)
+      .subscribe((strategies: any) => {
+        this.strategies = strategies;
       }));
   }
 
@@ -294,8 +358,8 @@ export class CoinDetailComponent implements OnInit {
     this.location.back();
   }
 
-  backtest(): void {
-    this.coinService.send({ cmd: 'backtest', options: { symbol: this.symbol} });
+  runBacktest(): void {
+    this.coinService.send({ cmd: 'run-backtest', options: { symbol: this.symbol, strategy: this.selectedStrategy, source: this.source} });
   }
 
   getActiveIndicators(): Observable<any> {
@@ -303,11 +367,10 @@ export class CoinDetailComponent implements OnInit {
   }
 
   delete(id: string) {
-    console.log(id);
     let indicator = id.split('_')[0];
     let deleteIDs = [];
 
-    if (indicator == 'rsi' || indicator == 'macd') {
+    if (indicator === 'rsi' || indicator === 'macd') {
 
       let newTop = 0;
       let newHeight = this.SIZES.data.heigth - this.SIZES.offset;
@@ -344,6 +407,10 @@ export class CoinDetailComponent implements OnInit {
           deleteIDs.push(id);
         }
       }
+    } else if (indicator === 'boll') {
+      deleteIDs.push(id+'_ma');
+      deleteIDs.push(id+'_upper');
+      deleteIDs.push(id+'_lower');
     } else {
       deleteIDs.push(id);
     }
@@ -367,11 +434,14 @@ export class CoinDetailComponent implements OnInit {
       return;
     }
 
-    this.coinService.send({ cmd: 'indicatorsData', options: { symbol: this.symbol, indicator: { type: indicator, params } } });
+    this.coinService.send({ cmd: 'indicatorsData', options: { symbol: this.symbol, indicator: { type: indicator, params }, source: this.source  } });
     this.getActiveIndicators()
       .subscribe(indicators => {
         indicators[id] = indicator;
       });
+  }
+
+  private selectStrategy(): void {
   }
 
   private selectIndicator(): void {

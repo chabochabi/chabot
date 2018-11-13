@@ -1,15 +1,16 @@
-import { Component, OnInit, Renderer } from '@angular/core';
+import { Component, OnInit, Renderer, ViewChild } from '@angular/core';
 import { Coin24hr } from '../coin';
 import { CoinService } from '../coin.service';
-import { Subject } from '../../../node_modules/rxjs';
+import { Subject } from 'rxjs';
 import { Router } from '@angular/router';
+import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css'],
+  selector: 'app-live-coins',
+  templateUrl: './live-coins.component.html',
+  styleUrls: ['./live-coins.component.css'],
 })
-export class DashboardComponent implements OnInit {
+export class LiveCoinsComponent implements OnInit {
 
   coins: Coin24hr[] = [];
   cols: any[];
@@ -20,45 +21,29 @@ export class DashboardComponent implements OnInit {
   ctr: number;
   rendered: boolean;
 
+  displayedColumns: string[] = ['symbol', 'averagePrice', 'priceChange', 'percentChange', 'volume', 'quoteVolume'];
+  dataSource: MatTableDataSource<Coin24hr>;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+
   constructor(
-    private coinService: CoinService, 
+    private coinService: CoinService,
     private renderer: Renderer,
-    private router: Router,) { }
+    private router: Router, ) { }
 
   ngOnInit() {
+
     this.rendered = false;
     this.ctr = 0;
     this.dtOptions = {
       pagingType: 'full_numbers',
-      pageLength: 25,
-      // columns: [{
-      //   title: 'Symbol',
-      //   data: 'symbol'
-      // }, {
-      //   title: 'Avg. Price',
-      //   data: 'averagePrice'
-      // }, {
-      //   title: 'Price Change',
-      //   data: 'priceChange'
-      // }, {
-      //   title: '% Change',
-      //   data: 'percentChange'
-      // }, {
-      //   title: 'Volume',
-      //   data: 'volume'
-      // }, {
-      //   title: 'Quote Vol.',
-      //   data: 'quoteVolume'
-      // }, {
-      //   title: 'Details',
-      //   render: function (data: any, type: any, full: any) {
-      //     return '<button class="waves-effect btn" symbol="' + full.symbol + '">Go</button>';
-      //   }
-      // }]
+      pageLength: 10,
+      order: [3, 'desc']
     };
     this.cols = [
       { field: 'symbol', header: 'Symbol' },
-      { field: 'averagePrice', header: 'averagePrice' },
+      { field: 'averagePrice', header: 'Avg. Price' },
       { field: 'priceChange', header: 'Price Change' },
       { field: 'percentChange', header: '% Change' },
       { field: 'volume', header: 'Volume' },
@@ -67,6 +52,13 @@ export class DashboardComponent implements OnInit {
     this.coinService.on24hrStream()
       .subscribe(coin => {
         // DIRTYYYYYYYYYYYY o_O
+        // this.dataSource.paginator = this.paginator;
+        // this.dataSource.sort = this.sort;
+        const data = []
+        for (let key in this.coins24hr) {
+          data.push(this.coins24hr[key]);
+        }
+        this.dataSource.data = data;
         if (!this.rendered) {
           this.dtTrigger.next();
           this.rendered = true;
@@ -75,6 +67,9 @@ export class DashboardComponent implements OnInit {
     this.coinService.get24hrList()
       .subscribe(coins => {
         this.coins24hr = coins;
+        this.dataSource = new MatTableDataSource();
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
       });
   }
 
@@ -86,7 +81,11 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  reconnect(): void {
-    this.coinService.reconnect();
+  applyFilter(filterValue: string) {
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 }

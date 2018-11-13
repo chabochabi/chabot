@@ -4,7 +4,7 @@
 // 	price: number;
 // }
 
-export class OfflineCoin {
+export class BacktestCoin {
 	openTime: number;
 	closeTime: number;
 	open: number;

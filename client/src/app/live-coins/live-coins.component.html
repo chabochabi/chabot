@@ -1,0 +1,76 @@
+<!-- <h2>Live Coins</h2> -->
+
+<div style="margin: auto; width: 80%">
+  <!-- <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Avg. Price</th>
+        <th>Price Change</th>
+        <th>% Change</th>
+        <th>Volume</th>
+        <th>Quote Vol.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let coin of objectKeys(coins24hr)">
+        <td>
+          <a class="symbol" [routerLink]="['/details', coins24hr[coin].symbol, 'live']">{{coins24hr[coin].symbol}}</a>
+        </td>
+        <td>{{ coins24hr[coin].averagePrice }}</td>
+        <td>{{ coins24hr[coin].priceChange }}</td>
+        <td>{{ coins24hr[coin].percentChange }}</td>
+        <td>{{ coins24hr[coin].volume }}</td>
+        <td>{{ coins24hr[coin].quoteVolume }}</td>
+      </tr>
+    </tbody>
+  </table> -->
+  <mat-form-field>
+    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+  </mat-form-field>
+  <table mat-table [dataSource]="dataSource" matSort>
+
+    <ng-container matColumnDef="symbol">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Symbol </th>
+      <td mat-cell *matCellDef="let row">
+        <a class="symbol" [routerLink]="['/details', row.symbol, 'live']">{{row.symbol}}</a>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="averagePrice">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Avg. Price </th>
+      <td mat-cell *matCellDef="let row"> {{row.averagePrice}}% </td>
+    </ng-container>
+
+    <ng-container matColumnDef="priceChange">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Price Change </th>
+      <td mat-cell *matCellDef="let row"> {{row.priceChange}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="percentChange">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> % Change </th>
+      <td mat-cell *matCellDef="let row"> {{row.percentChange}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="volume">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Volume </th>
+      <td mat-cell *matCellDef="let row"> {{row.volume}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="quoteVolume">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Quote Volume </th>
+      <td mat-cell *matCellDef="let row"> {{row.quoteVolume}} </td>
+    </ng-container>
+
+    <!-- <ng-container matColumnDef="percentChange">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> % Change </th>
+      <td mat-cell *matCellDef="let row" [style.color]="row.color"> {{row.color}} </td>
+    </ng-container> -->
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;">
+    </tr>
+  </table>
+
+  <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+</div>

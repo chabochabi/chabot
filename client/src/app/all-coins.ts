@@ -1,4 +1,3 @@
 export const COINS = {};
-
-export const OFFLINE_COINS = [];
+export const BACKTEST_COINS = [];
 

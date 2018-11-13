@@ -1,4 +1,3 @@
-/* AppComponent's private CSS styles */
 h1 {
   font-size: 1.2em;
   color: #999;
@@ -9,21 +8,47 @@ h2 {
   margin-top: 0;
   padding-top: 0;
 }
-nav a {
-  padding: 5px 10px;
+.chabot-logo {
+  height: 100%;
+  margin-right: 20px;
+}
+.menu-header-button {
+  padding: 10px;
   text-decoration: none;
   margin-top: 10px;
+  margin-bottom: 10px;
   display: inline-block;
-  background-color: #eee;
-  border-radius: 4px;
+  background-color: #a02a2d;
 }
-nav a:visited, a:link {
-  color: #607d8b;
+.menu-header-button:visited, .menu-header-button:link {
+  color: #000000;
 }
-nav a:hover {
-  color: #039be5;
-  background-color: #cfd8dc;
+.menu-header-button:hover {
+  background-color: #b53035;
 }
-nav a.active {
-  color: #039be5;
+
+li {
+  display:inline;
+}
+
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  z-index: 2;
+  background-color: #a02a2d;
+  padding-top: 20px;
+  padding-right: 40px;
+  padding-bottom: 20px;
+  padding-left: 40px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 5px -1px, rgba(0, 0, 0, 0.14) 0px 6px 10px 0px, rgba(0, 0, 0, 0.12) 0px 1px 18px 0px;
+}
+
+.reconnect {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
 }

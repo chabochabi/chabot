@@ -1,6 +1,20 @@
-<h1>{{title}}</h1>
-<nav>
-	<a routerLink="/dashboard">Top Coins</a>
-	<a routerLink="/coins">Offline</a>
-</nav>
-<router-outlet></router-outlet>
+<div class="chabot-theme">
+	<mat-toolbar>
+		<mat-toolbar-row class="main-header">
+			<button *ngIf="menuButton" mat-icon-button (click)="sideMenu.toggle()">
+				<mat-icon>menu</mat-icon>
+			</button>
+			<!-- <h1>chabot</h1> -->
+			<div class="chabot-logo">
+				<img src="../assets/chabot.png" height="20">
+			</div>
+			<a class="menu-header-button" routerLink="/overview" (click)="menuButton = false">Overview</a>
+			<a class="menu-header-button" routerLink="/live-coins" (click)="menuButton = false">Live</a>
+			<a class="menu-header-button" routerLink="/backtest-coins" (click)="menuButton = false">Backtest</a>
+			<div class="reconnect">
+				<button (click)="reconnect()">reconnect</button>
+			</div>
+		</mat-toolbar-row>
+	</mat-toolbar>
+	<router-outlet></router-outlet>
+</div>

@@ -1,3 +1,12 @@
+.backtest-coins-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(auto-fill, 1fr);
+  align-items: center;
+  justify-items: center;
+  height: 100%;
+}
+
 .coins {
   margin: 0 0 2em 0;
   list-style-type: none;

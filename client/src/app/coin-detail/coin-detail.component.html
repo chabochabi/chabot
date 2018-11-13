@@ -1,52 +1,90 @@
-<div #chartTarget>chart</div>
+<button type="button" mat-button (click)="backtestSidenav.toggle()">
+  backtest
+</button>
 
-<!-- <select [(ngModel)]="selectedIndicator" id="selectedIndicator" (change)="selectIndicator();">
-  <option value="" disabled selected>indicator</option>
-  <option *ngFor="let item of objectKeys(indicators)" [value]="indicators[item].id">{{indicators[item].name}}</option>
-</select> -->
+<mat-sidenav-container>
+  <!-- <mat-drawer-container autosize> -->
 
-
-<div class="scrolling-wrapper">
-  <!-- <div class="card"><h2>card</h2></div> -->
-
-  <ul class="indicators" *ngFor="let indicator of objectKeys(indicatorsDefaultParams)">
-    <span class="addBadge">{{indicator}}</span>
-    <button class="add" title="add indicator" (click)="add(indicator)">+</button>
-    <div *ngFor="let param of objectKeys(indicatorsDefaultParams[indicator])">
-      <label>{{param}}:
-        <input type="number" [(ngModel)]="indicators[indicator].params[param]" placeholder="{{indicatorsDefaultParams[indicator][param]}}">
-      </label>
+  <mat-sidenav-content>
+    <div class="chart">
+      <div #chartTarget>chart</div>
     </div>
-  </ul>
-</div>
 
-<ul class="indicators">
-  <li *ngFor="let indicator of objectKeys(activeIndicators)">
-    <span class="badge">{{activeIndicators[indicator]}}</span>
-    <button class="delete" title="delete indicator" (click)="delete(indicator)">x</button>
-  </li>
-</ul>
+    <ul class="indicators">
+      <li *ngFor="let indicator of objectKeys(activeIndicators)">
+        <span class="badge">{{activeIndicators[indicator]}}</span>
+        <button class="delete" title="delete indicator" (click)="delete(indicator)">x</button>
+      </li>
+    </ul>
+    
+    <div *ngIf="coins[symbol]">
+      <h2>{{symbol}} Details</h2>
+      <div>
+        <span>avg. price: </span>{{coins[symbol].averagePrice}}</div>
+      <div>
+        <span>price change: </span>{{coins[symbol].percentChange}}% ({{coins[symbol].priceChange}})</div>
+      <div>
+        <span>volume: </span>{{coins[symbol].volume}}</div>
+      <div>
+        <span>quote volume: </span>{{coins[symbol].quoteVolume}}</div>
+      <div>
+        <span>trades: </span>{{coins[symbol].numTrades}}</div>
+    </div>
+  </mat-sidenav-content>
 
+  <mat-sidenav #backtestSidenav mode="side">
+    <mat-list>
+      <mat-list-item>Indicators</mat-list-item>
 
-<div *ngIf="coins[symbol]">
-  <h2>{{symbol}} Details</h2>
-  <div>
-    <span>avg. price: </span>{{coins[symbol].averagePrice}}</div>
-  <div>
-    <span>price change: </span>{{coins[symbol].percentChange}}% ({{coins[symbol].priceChange}})</div>
-  <div>
-    <span>volume: </span>{{coins[symbol].volume}}</div>
-  <div>
-    <span>quote volume: </span>{{coins[symbol].quoteVolume}}</div>
-  <div>
-    <span>trades: </span>{{coins[symbol].numTrades}}</div>
-  <!-- <div>
-    <label>name:
-      <input [(ngModel)]="coin.symbol" placeholder="symbol"/>
-    </label>
-  </div> -->
-  <!-- <button (click)="getPrice()">PRICE</button> -->
-</div>
+      <!-- <div class="indicators-select"> -->
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="let indicator of objectKeys(indicatorsDefaultParams)">
+          <!-- <mat-expansion-panel class="accordion"> -->
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{indicator}}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
 
-<button (click)="backtest()">backtest</button>
+            <ul *ngFor="let param of objectKeys(indicatorsDefaultParams[indicator])">
+              <mat-form-field>
+                <input matInput placeholder="{{param}}" value="{{indicatorsDefaultParams[indicator][param]}}"
+                  [(ngModel)]="indicators[indicator].params[param]">
+              </mat-form-field>
+            </ul>
+            <ul>
+              <button class="add" title="add indicator" (click)="add(indicator)">+</button>
+            </ul>
+          <!-- </mat-expansion-panel> -->
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- </div> -->
+
+      <mat-divider></mat-divider>
+      <mat-list-item>Backtest</mat-list-item>
+
+      <!-- <div id="backtest"> -->
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Select Backtest
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-form-field>
+            <mat-select placeholder="{{selectedStrategy}}" [(ngModel)]="selectedStrategy" (selectionChange)="runBacktest();">
+              <mat-option *ngFor="let item of strategies" [value]="item">
+                {{item}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- </div> -->
+      <mat-divider></mat-divider>
+    </mat-list>
+  </mat-sidenav>
+</mat-sidenav-container>
+
 <button (click)="goBack()">go back</button>

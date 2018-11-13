@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { CoinService } from './coin.service'
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'chabot';
+  menuButton = false;
+
+  constructor(private coinService: CoinService) { }
+
+  reconnect(): void {
+    this.coinService.reconnect();
+  }
 }

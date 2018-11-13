@@ -1,0 +1,10 @@
+<h2>Backtest Coins</h2>
+<div class="backtest-coins-container">
+  <ul class="coins">
+    <li *ngFor="let coin of coins">
+      <a [routerLink]="['/details', coin , 'backtest']">
+        <span class="badge">{{coin}}</span>
+      </a>
+    </li>
+  </ul>
+</div>
