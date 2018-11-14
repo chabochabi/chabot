@@ -17,6 +17,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 import { AppComponent } from './app.component';
 import { BacktestCoinsComponent } from './backtest-coins/backtest-coins.component';
@@ -58,6 +59,7 @@ import { AnalysisComponent } from './analysis/analysis.component';
     MatSortModule,
     MatCardModule,
     MatButtonModule,
+    MatGridListModule,
     ReactiveFormsModule,
     BrowserAnimationsModule
   ],

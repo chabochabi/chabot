@@ -327,7 +327,7 @@ export class CoinAnalysisComponent implements OnInit {
 
       chart: {
         type: 'candlestick',
-        height: 600
+        height: 500
       },
       rangeSelector: {
         buttons: [{
