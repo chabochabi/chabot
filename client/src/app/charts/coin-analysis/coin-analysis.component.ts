@@ -19,6 +19,14 @@ export class CoinAnalysisComponent implements OnInit {
   // to get alls keys of an object as an array
   objectKeys = Object.keys;
 
+  coins: any = {};
+  coinsParams: any = {
+    "averagePrice": "Avg. Price", 
+    "priceChange": "Price Change", 
+    "percentChange": "% Change", 
+    "volume": "Volume", 
+    "quoteVolume": "Quote Volume"
+  };
   symbol: string;
   source: string;
   chart: Highstock.ChartObject;
@@ -59,6 +67,7 @@ export class CoinAnalysisComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.sub24hrCoins();
     this.subRoute();
     this.subHistory();
     this.subCandlestickUpdate();
@@ -69,6 +78,13 @@ export class CoinAnalysisComponent implements OnInit {
     for (let sub of this.subs) {
       sub.unsubscribe();
     }
+  }
+
+  private sub24hrCoins() {
+    this.coinService.get24hrList()
+      .subscribe(coins => {
+        this.coins = coins;
+      });
   }
 
   private subRoute() {
@@ -104,7 +120,7 @@ export class CoinAnalysisComponent implements OnInit {
         for (let indicator in data) {
           let id = indicator;
           for (let val of data[indicator].data) {
-            vals.push([ parseInt(val.time), parseFloat(val.value) ]);
+            vals.push([parseInt(val.time), parseFloat(val.value)]);
           }
 
           for (let param in data[indicator].params) {
@@ -181,11 +197,11 @@ export class CoinAnalysisComponent implements OnInit {
               let signal = [];
 
               for (let val of data[indicator].data.macd) {
-                macd.push([ parseInt(val.time), parseFloat(val.value) ]);
+                macd.push([parseInt(val.time), parseFloat(val.value)]);
               }
 
               for (let val of data[indicator].data.signal) {
-                signal.push([ parseInt(val.time), parseFloat(val.value) ]);
+                signal.push([parseInt(val.time), parseFloat(val.value)]);
               }
 
               this.chart.addSeries({
@@ -211,13 +227,13 @@ export class CoinAnalysisComponent implements OnInit {
 
             for (let i = 0; i < data[indicator].data.ma.length; i++) {
               val = data[indicator].data.ma[i];
-              ma.push([ parseInt(val.time), parseFloat(val.value) ]);
+              ma.push([parseInt(val.time), parseFloat(val.value)]);
 
               val = data[indicator].data.lowerBoll[i];
-              lower.push([ parseInt(val.time), parseFloat(val.value) ]);
+              lower.push([parseInt(val.time), parseFloat(val.value)]);
 
               val = data[indicator].data.upperBoll[i];
-              upper.push([ parseInt(val.time), parseFloat(val.value) ]);
+              upper.push([parseInt(val.time), parseFloat(val.value)]);
             }
 
             this.chart.addSeries({

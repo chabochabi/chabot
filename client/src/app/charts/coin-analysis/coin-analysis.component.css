@@ -1,4 +1,12 @@
 
 .chart {
-    width: 70%;
+    width: 60%;
+}
+
+.indicators {
+    width: 20%;
+}
+
+.trades {
+    width: 20%;
 }
