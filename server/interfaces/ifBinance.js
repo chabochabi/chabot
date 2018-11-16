@@ -15,6 +15,11 @@ var IFBinance = function () {
 // });
 
 sortSymbols = function (syms, pairs) {
+    pairs = {
+        "BTC": [],
+        "ETH": [],
+        "BNB": []
+    };
     for (let symbol in syms) {
         var symlen = symbol.length;
         tosym = symbol.substr(symlen - 3, symlen - 1);
@@ -22,21 +27,22 @@ sortSymbols = function (syms, pairs) {
             pairs[tosym].push(symbol);
         }
     }
+    return pairs;
 }
 
 IFBinance.prototype.allSymbols = function (callback) {
-    pairs = {
-        "BTC": [],
-        "ETH": [],
-        "BNB": []
-    };
-    return new Promise((resolve, reject) => {
+    // pairs = {
+    //     "BTC": [],
+    //     "ETH": [],
+    //     "BNB": []
+    // };
+    // return new Promise((resolve, reject) => {
         this.binance.prices(function (error, symbols) {
-            sortSymbols(symbols, this.pairs);
-            callback(this.pairs);
+            var pairs = sortSymbols(symbols, this.pairs);
+            callback(pairs);
         });
-        resolve(this.pairs);
-    });
+    //     resolve(this.pairs);
+    // });
 }
 
 IFBinance.prototype.getHistory = async function (type, params, callback) {

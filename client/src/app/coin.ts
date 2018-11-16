@@ -15,6 +15,18 @@ export class BacktestCoin {
 	closed: boolean;
 }
 
+export class Trade {
+	eventTime: number;
+	symbol: string;
+	price: number;
+	tradeID: number;
+	quantity: number;
+	buyerOrderID: number;
+	sellerOrderID: number;
+	maker: boolean;
+	ignore: boolean;
+}
+
 export class Coin24hr {
 	eventTime: number;
 	symbol: string;

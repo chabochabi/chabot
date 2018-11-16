@@ -1,12 +1,26 @@
 
-.chart {
-    width: 60%;
+.coin-params-item {
+    float: right;
+    padding: 10px;
 }
 
-.indicators {
-    width: 20%;
+.coin-params-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-.trades {
-    width: 20%;
+.coin-params-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(auto-fill, 1fr);
+    align-items: center;
+    justify-items: center;
+    height: 100%;
+    margin: auto;
+  }
+
+.mat-grid-tile {
+    color: #cccccc;
+    text-align: center;
 }

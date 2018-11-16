@@ -74,6 +74,12 @@ export class CoinService {
     });
   }
 
+  public onTradeUpdate(symbol: string): Observable<any> {
+    return new Observable<any>(observer => {
+      this.socket.on('trade:'+symbol, (data: any) => observer.next(data));
+    });
+  }
+
   public onIndicators(symbol: string): Observable<any> {
     return new Observable<any>(observer => {
       this.socket.on('indicators:'+symbol, (data: any) => observer.next(data));

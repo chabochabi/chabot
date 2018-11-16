@@ -34,20 +34,22 @@ DataManager.prototype.writeKline = function (symbol, data) {
     this.emitter.emit('kline', symbol, {klines: data});
 }
 
-DataManager.prototype.insertTrade = function (symbol, trade, offline = false) {
+DataManager.prototype.insertTrade = function (symbol, tradeBundle, offline = false) {
 
     if ((this.marketData.trade[symbol].count() >= MAXCOUNT_TRADE) && !offline) { // ignore limit if its offline, cause we'll probably be backtesting
         let first = this.readAll(symbol, 'trade')[0];
         this.marketData.trade[symbol].remove(first);
-        this.marketData.trade[symbol].insert(trade);
+        this.marketData.trade[symbol].insert(tradeBundle);
     } else {
-        this.marketData.trade[symbol].insert(trade);
+        this.marketData.trade[symbol].insert(tradeBundle);
     }
-    this.emitter.emit('trade', symbol, {trades: data});
+    this.emitter.emit('tradesBundle', symbol, {trades: tradeBundle});
 }
 
 DataManager.prototype.writeTrade = function (symbol, data) {
+
     this.addData(symbol, 'trade');
+    this.emitter.emit('trade', symbol, {trade: data});
 
     let now = Date.now();
     let openTime = now - (now % 60000);

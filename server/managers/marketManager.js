@@ -59,8 +59,8 @@ MarketManager.prototype.storeData = function (symbol, data, type) {
     }
 }
 
-MarketManager.prototype.openAllStreams = async function (type, config) {
-    this.ifb.allSymbols(async (allSyms) => {
+MarketManager.prototype.openAllStreams = function (type, config) {
+    this.ifb.allSymbols((allSyms) => {
         btcs = allSyms[config.tosym]; // either BTC, ETH or BNB ... for Binance that is
         params = {
             symbols: btcs,
@@ -94,7 +94,6 @@ MarketManager.prototype.openAllStreams = async function (type, config) {
                 break;
 
             case 'trades':
-
                 this.ifb.openStream(type, params, (symbol, data) => {
                     let entry = parseTrade(data);
                     this.storeData(symbol, entry, 'trade');
@@ -144,47 +143,5 @@ MarketManager.prototype.miniTicker = function () {
         console.log(data);
     });
 }
-
-// MarketManager.prototype.readCSV = async function (file, callback) {
-//     return new Promise(function (resolve, reject) {
-//         let parser = csv.parse({ delimiter: ',', columns: true }, function (err, data) {
-//             let entries = [];
-//             for (const entry of data) {
-//                 entries.push(parseKlineBacktest(entry));
-//             }
-//             let symbol = file.split('_')[1].split('.')[0];
-//             callback(symbol, entries);
-//             resolve(symbol, entries);
-//         });
-//         fs.createReadStream('/Users/chabochabito/Documents/crypto/js/chabot/server/offline/data/' + file).pipe(parser);
-//     });
-// }
-
-// MarketManager.prototype.loadTestData = function (writeEvent, sym) {
-
-//     var csvFiles = [];
-
-//     let loadSymbol = 'kline_'
-//     if (sym) {
-//         loadSymbol += sym;
-//     }
-
-//     fs.readdir('/Users/chabochabito/Documents/crypto/js/chabot/server/offline/data', (err, files) => {
-//         files.forEach(file => {
-//             if (file.startsWith(loadSymbol)) {
-//                 csvFiles.push(this.readCSV(file, (symbol, data) => {
-//                     for (candlestick of data) {
-//                         this.storeData(symbol, candlestick, 'backtest');
-//                     }
-//                 }));
-//             }
-//         });
-//         Promise.all(csvFiles).then((file) => {
-//             console.log(" all csv reads done!");
-//             // TODO this kinda dirtyyyy
-//             this.di.emitEvent(writeEvent, "all");
-//         });
-//     });
-// }
 
 module.exports = MarketManager;

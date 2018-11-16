@@ -44,8 +44,8 @@ Chabot.prototype.run = async function (mode) {
                 tosym: 'BTC',
                 interval: '1m'
             }
-            // start all candlestick streams. for now its only <COIN>BTC tho
             this.mm.openAllStreams('klines', config);
+            this.mm.openAllStreams('trades', config);
             break;
 
         case 'test':

@@ -1,10 +1,12 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 
 import * as Highstock from 'highcharts/highstock.src';
 import * as Highcharts from 'highcharts/highcharts';
 
+import { Trade } from '../../coin';
 import { CoinService } from '../../coin.service';
 
 @Component({
@@ -18,15 +20,21 @@ export class CoinAnalysisComponent implements OnInit {
 
   // to get alls keys of an object as an array
   objectKeys = Object.keys;
+  gridSize: number = 12;
 
+  displayedColumns: string[] = ['price', 'quantity', 'eventTime'];
+  dataSource: MatTableDataSource<any>;
+
+  trades: any = [];
   coins: any = {};
   coinsParams: any = {
-    "averagePrice": "Avg. Price", 
-    "priceChange": "Price Change", 
-    "percentChange": "% Change", 
-    "volume": "Volume", 
+    "averagePrice": "Avg. Price",
+    "priceChange": "Price Change",
+    "percentChange": "% Change",
+    "volume": "Volume",
     "quoteVolume": "Quote Volume"
   };
+  coinsParamsLength: number = Object.keys(this.coinsParams).length;
   symbol: string;
   source: string;
   chart: Highstock.ChartObject;
@@ -71,6 +79,7 @@ export class CoinAnalysisComponent implements OnInit {
     this.subRoute();
     this.subHistory();
     this.subCandlestickUpdate();
+    this.subTradeUpdate();
     this.subIndicatorsData();
   }
 
@@ -278,7 +287,34 @@ export class CoinAnalysisComponent implements OnInit {
       }));
   }
 
+  private subTradeUpdate() {
+    this.dataSource = new MatTableDataSource();
+    // var test = {
+    //   "buyerOrderID": 228901331,
+    //   "eventTime": 1542326824496,
+    //   "ignore": true,
+    //   "maker": true,
+    //   "price": 0.032027,
+    //   "quantity": 0.889,
+    //   "sellerOrderID": 228901334,
+    //   "tradeID": 90929206,
+    //   "tradeTime": 1542326824491
+    // };
+    // this.dataSource.data = [test];
+
+    this.subs.push(this.coinService.onTradeUpdate(this.symbol)
+      .subscribe((data: any) => {
+        this.updateTradesList(data.trade);
+      }));
+  }
+
+  private updateTradesList(trade): void {
+    this.trades.push(trade);
+    this.dataSource.data = this.trades;
+  }
+
   private updateChart(candlestick): void {
+    // console.log(candlestick);
     let { openTime: openTime, open: open, high: high, low: low, close: close, volume: volume, closedTime: closeTime, closed: closed } = candlestick;
     if (this.lastTime <= openTime) { //this.intervals.indexOf(openTime) == -1
       this.lastTime = openTime;
@@ -343,6 +379,7 @@ export class CoinAnalysisComponent implements OnInit {
 
       chart: {
         type: 'candlestick',
+        width: 800,
         height: 500
       },
       rangeSelector: {
