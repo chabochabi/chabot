@@ -19,6 +19,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 
+import { CdkTableModule } from '@angular/cdk/table';
+
+
 import { AppComponent } from './app.component';
 import { BacktestCoinsComponent } from './backtest-coins/backtest-coins.component';
 import { CoinDetailComponent } from './coin-detail/coin-detail.component';
@@ -60,6 +63,7 @@ import { AnalysisComponent } from './analysis/analysis.component';
     MatCardModule,
     MatButtonModule,
     MatGridListModule,
+    CdkTableModule,
     ReactiveFormsModule,
     BrowserAnimationsModule
   ],

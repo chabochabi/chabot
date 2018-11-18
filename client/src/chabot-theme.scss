@@ -32,8 +32,42 @@ $chabot-red: (
     )
 );
 
+$chabot-green: (
+    50 : #e7f9e4,
+    100 : #c3efbc,
+    200 : #9ce58f,
+    300 : #74da62,
+    400 : #56d241,
+    500 : #38ca1f,
+    600 : #32c51b,
+    700 : #2bbd17,
+    800 : #24b712,
+    900 : #17ab0a,
+    A100 : #d9ffd7,
+    A200 : #a9ffa4,
+    A400 : #79ff71,
+    A700 : #61ff58,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #000000,
+        600 : #000000,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+
+
 $chabot-primary: mat-palette($chabot-red, 500);
-$chabot-accent: mat-palette($mat-green, 400);
+$chabot-accent: mat-palette($chabot-green, 500);
 $chabot-warn: mat-palette($mat-yellow, 500);
 
 $chabot-theme: mat-dark-theme(

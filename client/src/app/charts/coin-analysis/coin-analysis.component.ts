@@ -1,7 +1,8 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Observable, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
+import { MatTableDataSource } from '@angular/material';
 
 import * as Highstock from 'highcharts/highstock.src';
 import * as Highcharts from 'highcharts/highcharts';
@@ -22,8 +23,8 @@ export class CoinAnalysisComponent implements OnInit {
   objectKeys = Object.keys;
   gridSize: number = 12;
 
-  displayedColumns: string[] = ['price', 'quantity', 'eventTime'];
-  dataSource: MatTableDataSource<any>;
+  tradeListDisplayedColumns: string[] = ['price', 'quantity', 'eventTime'];
+  tradeListDataSource: MatTableDataSource<any>;
 
   trades: any = [];
   coins: any = {};
@@ -46,6 +47,8 @@ export class CoinAnalysisComponent implements OnInit {
   indicators: any = {};
   indicatorsDefaultParams: any = {};
   activeIndicators: any = {};
+  selectedStrategy: string;
+  strategies: any[] = [];
 
   // TODO fix this static BS
   indicatorAxis: any = {
@@ -77,16 +80,37 @@ export class CoinAnalysisComponent implements OnInit {
   ngOnInit() {
     this.sub24hrCoins();
     this.subRoute();
+    this.subIndicatorsList();
     this.subHistory();
     this.subCandlestickUpdate();
     this.subTradeUpdate();
     this.subIndicatorsData();
+    this.subBacktestData();
   }
 
   ngOnDestroy(): void {
     for (let sub of this.subs) {
       sub.unsubscribe();
     }
+  }
+
+  private subIndicatorsList() {
+    this.coinService.send({ cmd: 'indicators', options: { symbol: this.symbol } });
+    this.subs.push(this.coinService.onIndicators(this.symbol)
+      .subscribe((indicators: any) => {
+        let vals = [];
+        for (let val in indicators) {
+          this.indicators[val] = {
+            name: val,
+            id: val.toLowerCase(),
+            params: indicators[val],
+          }
+          this.indicatorsDefaultParams[val] = {};;
+          for (let param in indicators[val]) {
+            this.indicatorsDefaultParams[val][param] = indicators[val][param];
+          }
+        }
+      }));
   }
 
   private sub24hrCoins() {
@@ -278,6 +302,38 @@ export class CoinAnalysisComponent implements OnInit {
           }
         }
       }));
+
+    this.initStrategies();
+  }
+
+  private subBacktestData() {
+    this.subs.push(this.coinService.onBacktestData()
+      .subscribe((data: any) => {
+        let flags = [];
+        let flagColor = '#ff4143';
+        for (let entry in data.flags) {
+          flagColor = '#ff4143';
+          if (data.flags[entry] === 'up') {
+            flagColor = '#38ca1f';
+          }
+          flags.push({
+            x: parseInt(entry),
+            title: data.flags[entry],
+            text: data.flags[entry],
+            color: flagColor,
+            fillColor: flagColor
+          })
+        }
+
+        this.chart.addSeries({
+          type: 'flags',
+          id: 'flags',
+          data: flags,
+          onSeries: 'series-ohlc',
+          shape: 'squarepin',
+          width: 16
+        })
+      }));
   }
 
   private subCandlestickUpdate() {
@@ -288,19 +344,18 @@ export class CoinAnalysisComponent implements OnInit {
   }
 
   private subTradeUpdate() {
-    this.dataSource = new MatTableDataSource();
-    // var test = {
-    //   "buyerOrderID": 228901331,
-    //   "eventTime": 1542326824496,
-    //   "ignore": true,
-    //   "maker": true,
-    //   "price": 0.032027,
-    //   "quantity": 0.889,
-    //   "sellerOrderID": 228901334,
-    //   "tradeID": 90929206,
-    //   "tradeTime": 1542326824491
-    // };
-    // this.dataSource.data = [test];
+    this.tradeListDataSource = new MatTableDataSource();
+    var test = {
+      "buyerOrderID": 228901331,
+      "eventTime": 1542326824496,
+      "ignore": true,
+      "maker": true,
+      "price": 0.032027,
+      "quantity": 0.889,
+      "sellerOrderID": 228901334,
+      "tradeID": 90929206,
+      "tradeTime": 1542326824491
+    };
 
     this.subs.push(this.coinService.onTradeUpdate(this.symbol)
       .subscribe((data: any) => {
@@ -308,9 +363,117 @@ export class CoinAnalysisComponent implements OnInit {
       }));
   }
 
+  initStrategies(): void {
+    this.coinService.send({ cmd: 'strategies', options: { symbol: this.symbol } });
+    this.subs.push(this.coinService.onStrategies(this.symbol)
+      .subscribe((strategies: any) => {
+        this.strategies = strategies;
+      }));
+  }
+
+  // TODO maybe move all of this indicators stuff into a separate component or service
+  addIndicator(indicator: string) {
+
+    let params = this.indicators[indicator]['params'];
+    let id = indicator.toLowerCase();
+
+    for (let p in params) {
+      id += '_' + params[p];
+    }
+
+    if (id in this.activeIndicators) {
+      return;
+    }
+
+    this.coinService.send({ cmd: 'indicatorsData', options: { symbol: this.symbol, indicator: { type: indicator, params }, source: this.source } });
+    this.getActiveIndicators()
+      .subscribe(indicators => {
+        indicators[id] = indicator;
+      });
+  }
+
+  deleteIndicator(id: string) {
+    let indicator = id.split('_')[0];
+    let deleteIDs = [];
+
+    if (indicator === 'rsi' || indicator === 'macd') {
+
+      let newTop = 0;
+      let newHeight = this.SIZES.data.heigth - this.SIZES.offset;
+
+      this.indicatorAxis[indicator].ctr -= 1;
+      if (this.indicatorAxis[indicator].ctr == 0) {
+
+        delete this.indicatorAxis[indicator];
+        let axisCtr = this.objectKeys(this.indicatorAxis).length;
+        if (axisCtr > 1) {
+          newTop = this.SIZES.volume.top - (this.SIZES.volume.top / (2 ** (axisCtr - 1)));
+          newHeight = (this.SIZES.volume.top / (2 ** (axisCtr - 1))) - this.SIZES.offset;
+        }
+
+        // not scalable... TODO
+        this.prevAxis = this.objectKeys(this.indicatorAxis)[axisCtr - 1];
+        let previousYAxis = this.chart.get(this.prevAxis);
+
+        previousYAxis.update(
+          Highstock.merge(
+            {
+              top: newTop + '%',
+              height: newHeight + '%'
+            }
+          )
+        );
+
+        deleteIDs.push(indicator);
+      } else {
+        if (indicator == 'macd') {
+          deleteIDs.push(id + '_macd');
+          deleteIDs.push(id + '_signal');
+        } else {
+          deleteIDs.push(id);
+        }
+      }
+    } else if (indicator === 'boll') {
+      deleteIDs.push(id + '_ma');
+      deleteIDs.push(id + '_upper');
+      deleteIDs.push(id + '_lower');
+    } else {
+      deleteIDs.push(id);
+    }
+
+    for (let i of deleteIDs) {
+      this.chart.get(i).remove();
+    }
+    delete this.activeIndicators[id];
+  }
+
+  getActiveIndicators(): Observable<any> {
+    return of(this.activeIndicators);
+  }
+
+  runBacktest(): void {
+    console.log({ cmd: 'run-backtest', options: { symbol: this.symbol, strategy: this.selectedStrategy, source: this.source } });
+    this.coinService.send({ cmd: 'run-backtest', options: { symbol: this.symbol, strategy: this.selectedStrategy, source: this.source } });
+  }
+
   private updateTradesList(trade): void {
-    this.trades.push(trade);
-    this.dataSource.data = this.trades;
+    let date = new Date(trade.eventTime);
+    let hours = date.getHours();
+    let minutes = '0' + date.getMinutes();
+    let seconds = '0' + date.getSeconds();
+    trade.readableTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+    if (!trade.maker) {
+      trade.color = '#38ca1f';
+    } else {
+      trade.color = '#ff4143';
+    }
+
+    if (this.trades.length < 200) {
+      this.trades.unshift(trade);
+    } else {
+      this.trades.pop();
+    }
+    this.tradeListDataSource.data = this.trades;
   }
 
   private updateChart(candlestick): void {
@@ -377,12 +540,56 @@ export class CoinAnalysisComponent implements OnInit {
     // create the chart
     var options: Highstock.Options = {
 
+      colors: ['#d0d0d5', '#7798BF', '#ff66ff', '#ffff66', '#66c2ff', '#b366ff', '#ffa366', '#66ffff', '#d9b38c', '#ff66a3', '#c2c2a3'],
+
       chart: {
+        backgroundColor: {
+          linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+          stops: [
+            [0, '#424242']
+            // [1, '#424242']
+          ]
+        },
+        style: {
+          fontFamily: 'monospace'
+        },
+        plotBorderColor: '#606063',
         type: 'candlestick',
-        width: 800,
         height: 500
       },
+
       rangeSelector: {
+        buttonTheme: {
+          fill: '#505053',
+          stroke: '#000000',
+          style: {
+            color: '#CCC'
+          },
+          states: {
+            hover: {
+              fill: '#707073',
+              stroke: '#000000',
+              style: {
+                color: 'white'
+              }
+            },
+            select: {
+              fill: '#000003',
+              stroke: '#000000',
+              style: {
+                color: 'white'
+              }
+            }
+          }
+        },
+        inputBoxBorderColor: '#505053',
+        inputStyle: {
+          backgroundColor: '#333',
+          color: 'silver'
+        },
+        labelStyle: {
+          color: 'silver'
+        },
         buttons: [{
           type: 'minute',
           count: 15,
@@ -412,18 +619,28 @@ export class CoinAnalysisComponent implements OnInit {
         inputEnabled: false
       },
 
-      title: {
-        text: 'OHLC Test'
-      },
+      // title: {
+      //   text: 'OHLC Test'
+      // },
 
       yAxis: [{
+        gridLineColor: '#707073',
+        lineColor: '#707073',
+        minorGridLineColor: '#505053',
+        tickColor: '#707073',
         id: 'ohlc',
         labels: {
+          style: {
+            color: '#E0E0E3'
+          },
           align: 'right',
           x: -3
         },
         title: {
-          text: 'OHLC'
+          style: {
+            color: '#A0A0A3'
+          },
+          text: 'OHLC',
         },
         height: this.SIZES.data.heigth + '%',
         lineWidth: 2,
@@ -432,10 +649,16 @@ export class CoinAnalysisComponent implements OnInit {
         }
       }, {
         labels: {
+          style: {
+            color: '#E0E0E3'
+          },
           align: 'right',
           x: -3
         },
         title: {
+          style: {
+            color: '#A0A0A3'
+          },
           text: 'Volume'
         },
         top: this.SIZES.volume.top + '%',
@@ -445,8 +668,110 @@ export class CoinAnalysisComponent implements OnInit {
       ],
 
       tooltip: {
-        split: true
+        split: true,
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        style: {
+          color: '#F0F0F0'
+        }
       },
+
+      plotOptions: {
+        series: {
+          dataLabels: {
+            color: '#B0B0B3'
+          },
+          marker: {
+            lineColor: '#333'
+          }
+        },
+        boxplot: {
+          fillColor: '#505053'
+        },
+        candlestick: {
+          upLineColor: '#38ca1f',
+          upColor: '#38ca1f',
+          color: '#ff4143',
+          lineColor: '#ff4143'
+        },
+        errorbar: {
+          color: 'white'
+        }
+      },
+
+      legend: {
+        itemStyle: {
+          color: '#E0E0E3'
+        },
+        itemHoverStyle: {
+          color: '#FFF'
+        },
+        itemHiddenStyle: {
+          color: '#606063'
+        }
+      },
+      credits: {
+        style: {
+          color: '#666'
+        }
+      },
+      labels: {
+        style: {
+          color: '#707073'
+        }
+      },
+
+      drilldown: {
+        activeAxisLabelStyle: {
+          color: '#F0F0F3'
+        },
+        activeDataLabelStyle: {
+          color: '#F0F0F3'
+        }
+      },
+
+      navigation: {
+        buttonOptions: {
+          symbolStroke: '#DDDDDD',
+          theme: {
+            fill: '#505053'
+          }
+        }
+      },
+
+      navigator: {
+        handles: {
+          backgroundColor: '#666',
+          borderColor: '#AAA'
+        },
+        outlineColor: '#CCC',
+        maskFill: 'rgba(255,255,255,0.1)',
+        series: {
+          color: '#7798BF',
+          lineColor: '#A6C7ED'
+        },
+        xAxis: {
+          gridLineColor: '#505053'
+        }
+      },
+
+      scrollbar: {
+        barBackgroundColor: '#808083',
+        barBorderColor: '#808083',
+        buttonArrowColor: '#CCC',
+        buttonBackgroundColor: '#606063',
+        buttonBorderColor: '#606063',
+        rifleColor: '#FFF',
+        trackBackgroundColor: '#404043',
+        trackBorderColor: '#404043'
+      },
+
+      // special colors for some of the
+      legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
+      background2: '#505053',
+      dataLabelsColor: '#B0B0B3',
+      textColor: '#C0C0C0',
+      contrastTextColor: '#F0F0F3',
+      maskColor: 'rgba(255,255,255,0.3)',
 
       series: [{
         id: 'series-ohlc',
