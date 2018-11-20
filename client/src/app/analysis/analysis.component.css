@@ -1,25 +1,5 @@
-/* .coin-params-item {
-    float: right;
-    padding: 10px;
-}
 
-.coin-params-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.coin-params-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(auto-fill, 1fr);
-    align-items: center;
-    justify-items: center;
-    height: 100%;
-    margin: auto;
-  } */
-
-  .analysis-block {
+.analysis-block {
     margin-top: 10px;
 }
 
@@ -83,21 +63,15 @@
     height: 600px;
 }
 
-/* .mat-form-field {
-    width: 90%;
-} */
-
-/* .mat-list {
-    padding: 0px;
-    width: 100% !important;
-} */
-
-/* .mat-list-item {
-    font-size: 12px;
-} */
-
 .mat-expansion-panel {
     font-size: 12px;
+    background-color: #3b3b3b;
+    margin: 8px;
+}
+
+.mat-tab {
+    background-color: #3b3b3b;
+    margin: 8px;    
 }
 
 .strat-description {

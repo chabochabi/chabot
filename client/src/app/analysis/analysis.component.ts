@@ -736,6 +736,18 @@ export class AnalysisComponent implements OnInit {
           },
           marker: {
             lineColor: '#333'
+          },
+          dataGrouping: {
+            units: [[
+              'minute',
+              [1, 2, 5, 10, 15, 30]
+            ], [
+              'hour',
+              [1, 2, 3, 4, 6, 8, 12]
+            ], [
+              'day',
+              [1]
+            ]]
           }
         },
         boxplot: {
