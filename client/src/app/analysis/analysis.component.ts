@@ -521,10 +521,8 @@ export class AnalysisComponent implements OnInit {
     } else {
       trade.color = '#ff4143';
     }
-
-    if (this.trades.length < 200) {
-      this.trades.unshift(trade);
-    } else {
+    this.trades.unshift(trade);
+    if (this.trades.length > 150) {
       this.trades.pop();
     }
     this.tradeListDataSource.data = this.trades;
