@@ -48,7 +48,7 @@ Backtest.prototype.run = function (symbol, source, strategy, params) {
 
     console.log(' running backtest: '+strategy);
     switch (strategy) {
-        case 'basicEMA':
+        case 'BasicEMA':
             this.testStrat = new BasicEMA(params);
             break;
     
@@ -66,7 +66,7 @@ Backtest.prototype.run = function (symbol, source, strategy, params) {
     this.btEmitter.on('backtestDone', (function (symbol, source) {
         console.log(' BACKTEST DONE');
         let profit = this.evaluate(symbol, source);
-        this.emitter.emit('backtestData', { flags: this.testStrat.flags, profit: profit });
+        this.emitter.emit('backtestData', { strategy: this.testStrat.name, description: this.testStrat.description, flags: this.testStrat.flags, profit: profit });
     }).bind(this));
 
     this.simulateStream(symbol, source, this.bm.getBacktestData(symbol, source));

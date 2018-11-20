@@ -1,4 +1,4 @@
 
 module.exports = {
-    'basicEMA': 'basicEMA.js'
+    'BasicEMA': 'basicEMA.js'
 }

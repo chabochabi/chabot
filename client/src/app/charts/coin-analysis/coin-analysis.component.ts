@@ -146,6 +146,204 @@ export class CoinAnalysisComponent implements OnInit {
       }));
   }
 
+  private addIndicatorAxis(indicator: string, id: string) {
+    let newTop = 0;
+    let newHeight = 0;
+
+    if (indicator in this.indicatorAxis) {
+      this.indicatorAxis[indicator].prevAxis = this.prevAxis;
+      this.indicatorAxis[indicator].ctr += 1;
+    } else {
+      this.indicatorAxis[indicator] = {
+        index: this.chart.yAxis.length - 1,
+        prevAxis: this.prevAxis,
+        ctr: 1
+      }
+
+      let axisCtr = this.objectKeys(this.indicatorAxis).length;
+
+      // bullshit if??? TODO
+      if (axisCtr > 1) {
+        newTop = this.SIZES.volume.top - (this.SIZES.volume.top / (2 ** (axisCtr - 1)));
+        newHeight = (this.SIZES.volume.top / (2 ** (axisCtr - 1))) - this.SIZES.offset;
+      }
+
+      this.chart.addAxis({
+        top: newTop + '%',
+        height: newHeight + '%',
+        opposite: true,
+        minLength: 50,
+        id: indicator,
+        title: {
+          text: ''
+        }
+      }, false);
+
+      this.indicatorAxis[indicator] = {
+        index: this.chart.yAxis.length - 1,
+        prevAxis: this.prevAxis,
+        ctr: 1
+      }
+
+      let firstYAxis = this.chart.get(this.prevAxis);
+      this.prevAxis = indicator;
+
+      firstYAxis.update({
+        height: newHeight + '%',
+        resize: {
+          enabled: true,
+          controlledAxis: {
+            next: [indicator]
+          },
+          lineWidth: 4
+        }
+      }, false);
+    }
+
+    return this.indicatorAxis[indicator].index;
+  }
+
+  private plotRSI(id: string, vals: any[], yAxis: number, params: any) {
+    let name = 'RSI-' + params['frameLength'];
+    this.chart.addSeries({
+      type: 'line',
+      id: id,
+      // name: id,
+      name: name,
+      data: vals,
+      yAxis: yAxis,
+      selected: true
+    });
+  }
+
+  private plotMACD(indicator: string, id: string, data: any, yAxis: number) {
+    let macd = [];
+    let signal = [];
+    let macdName = 'MACD-' + data[indicator].params['fast'] + '-' + data[indicator].params['slow'];
+    let signalName = 'Signal-' + data[indicator].params['signal'];
+
+    for (let val of data[indicator].data.macd) {
+      macd.push([parseInt(val.time), parseFloat(val.value)]);
+    }
+
+    for (let val of data[indicator].data.signal) {
+      signal.push([parseInt(val.time), parseFloat(val.value)]);
+    }
+
+    this.chart.addSeries({
+      type: 'line',
+      id: id + ':macd',
+      // name: id + '_macd',
+      name: macdName,
+      data: macd,
+      yAxis: yAxis,
+      selected: true
+    });
+
+    this.chart.addSeries({
+      type: 'line',
+      id: id + ':signal',
+      // name: id + '_signal',
+      name: signalName,
+      // linkedTo: id + '_macd',
+      data: signal,
+      yAxis: yAxis,
+      selected: true
+    });
+  }
+
+  private plotBOLL(indicator: string, id: string, data: any) {
+    let ma = [], upper = [], lower = [];
+    let val;
+    let bollMAName = 'BOLL-MA-' + data[indicator].params['frameLength'];
+    let bollUppderName = 'BOLL-MA(+' + data[indicator].params['multiplier'] + ')';
+    let bollLowerName = 'BOLL-MA(-' + data[indicator].params['multiplier'] + ')';
+
+    for (let i = 0; i < data[indicator].data.ma.length; i++) {
+      val = data[indicator].data.ma[i];
+      ma.push([parseInt(val.time), parseFloat(val.value)]);
+
+      val = data[indicator].data.lowerBoll[i];
+      lower.push([parseInt(val.time), parseFloat(val.value)]);
+
+      val = data[indicator].data.upperBoll[i];
+      upper.push([parseInt(val.time), parseFloat(val.value)]);
+    }
+
+    this.chart.addSeries({
+      type: 'line',
+      id: id + ':ma',
+      // name: id + '_ma',
+      name: bollMAName,
+      data: ma,
+      selected: true
+    });
+
+    this.chart.addSeries({
+      type: 'line',
+      id: id + ':lower',
+      // name: id + '_lower',
+      name: bollUppderName,
+      data: lower,
+      selected: true
+    });
+
+    this.chart.addSeries({
+      type: 'line',
+      id: id + ':upper',
+      // name: id + '_upper',
+      name: bollLowerName,
+      data: upper,
+      selected: true
+    });
+  }
+
+  private plotLine(indicator: string, id: string, vals: any[], params: any) {
+    let name = indicator.toUpperCase();
+    for (let param in params) {
+      name += '-' + params[param];
+    }
+    this.chart.addSeries({
+      type: 'line',
+      // id: indicator,
+      id: id,
+      // name: id,
+      name: name,
+      data: vals,
+      selected: true
+      // yAxis: 2
+    });
+  }
+
+  private plotBacktest(data: any) {
+    let flags = [];
+    let flagColor = '#ff4143';
+    for (let entry in data.flags) {
+      flagColor = '#ff4143';
+      if (data.flags[entry] === 'up') {
+        flagColor = '#38ca1f';
+      }
+      flags.push({
+        x: parseInt(entry),
+        title: data.flags[entry],
+        text: data.flags[entry],
+        color: flagColor,
+        fillColor: flagColor
+      });
+    }
+
+    this.chart.addSeries({
+      type: 'flags',
+      id: data.strategy,
+      name: data.strategy,
+      data: flags,
+      onSeries: 'series-ohlc',
+      shape: 'squarepin',
+      width: 14,
+      selected: true
+    });
+  }
+
   private subIndicatorsData() {
     this.subs.push(this.coinService.onIndicatorsData(this.symbol)
       .subscribe((data: any) => {
@@ -160,145 +358,21 @@ export class CoinAnalysisComponent implements OnInit {
             id += '_' + data[indicator].params[param];
           }
 
-          if (indicator == 'rsi' || indicator == 'macd') {
+          if (indicator === 'rsi' || indicator === 'macd') {
 
-            let newTop = 0;
-            let newHeight = 0;
+            let lastAxisIdx = this.addIndicatorAxis(indicator, id);
 
-            if (indicator in this.indicatorAxis) {
-              this.indicatorAxis[indicator].prevAxis = this.prevAxis;
-              this.indicatorAxis[indicator].ctr += 1;
-            } else {
-              this.indicatorAxis[indicator] = {
-                index: this.chart.yAxis.length - 1,
-                prevAxis: this.prevAxis,
-                ctr: 1
-              }
-
-              let axisCtr = this.objectKeys(this.indicatorAxis).length;
-
-              // BS if??? TODO
-              if (axisCtr > 1) {
-                newTop = this.SIZES.volume.top - (this.SIZES.volume.top / (2 ** (axisCtr - 1)));
-                newHeight = (this.SIZES.volume.top / (2 ** (axisCtr - 1))) - this.SIZES.offset;
-              }
-
-              this.chart.addAxis({
-                top: newTop + '%',
-                height: newHeight + '%',
-                opposite: true,
-                minLength: 50,
-                id: indicator,
-                title: {
-                  text: ''
-                }
-              }, false);
-
-              this.indicatorAxis[indicator] = {
-                index: this.chart.yAxis.length - 1,
-                prevAxis: this.prevAxis,
-                ctr: 1
-              }
-
-              let firstYAxis = this.chart.get(this.prevAxis);
-              this.prevAxis = indicator;
-
-              firstYAxis.update({
-                height: newHeight + '%',
-                resize: {
-                  enabled: true,
-                  controlledAxis: {
-                    next: [indicator]
-                  },
-                  lineWidth: 4
-                }
-              }, false);
-            }
-
-            let lastAxisIdx = this.indicatorAxis[indicator].index;
-
-            if (indicator == 'rsi') {
-              this.chart.addSeries({
-                type: 'line',
-                id: id,
-                name: id,
-                data: vals,
-                yAxis: lastAxisIdx
-              })
-            } else if (indicator == 'macd') {
-              let macd = [];
-              let signal = [];
-
-              for (let val of data[indicator].data.macd) {
-                macd.push([parseInt(val.time), parseFloat(val.value)]);
-              }
-
-              for (let val of data[indicator].data.signal) {
-                signal.push([parseInt(val.time), parseFloat(val.value)]);
-              }
-
-              this.chart.addSeries({
-                type: 'line',
-                id: id + '_macd',
-                name: id + '_macd',
-                data: macd,
-                yAxis: lastAxisIdx
-              })
-
-              this.chart.addSeries({
-                type: 'line',
-                id: id + '_signal',
-                name: id + '_signal',
-                data: signal,
-                yAxis: lastAxisIdx
-              })
-
+            if (indicator === 'rsi') {
+              this.plotRSI(id, vals, lastAxisIdx, data[indicator].params);
+            } else if (indicator === 'macd') {
+              this.plotMACD(indicator, id, data, lastAxisIdx);
             }
           } else if (indicator === 'boll') {
-            let ma = [], upper = [], lower = [];
-            let val;
 
-            for (let i = 0; i < data[indicator].data.ma.length; i++) {
-              val = data[indicator].data.ma[i];
-              ma.push([parseInt(val.time), parseFloat(val.value)]);
-
-              val = data[indicator].data.lowerBoll[i];
-              lower.push([parseInt(val.time), parseFloat(val.value)]);
-
-              val = data[indicator].data.upperBoll[i];
-              upper.push([parseInt(val.time), parseFloat(val.value)]);
-            }
-
-            this.chart.addSeries({
-              type: 'line',
-              id: id + '_ma',
-              name: id + '_ma',
-              data: ma
-            })
-
-            this.chart.addSeries({
-              type: 'line',
-              id: id + '_lower',
-              name: id + '_lower',
-              data: lower
-            })
-
-            this.chart.addSeries({
-              type: 'line',
-              id: id + '_upper',
-              name: id + '_upper',
-              data: upper
-            })
+            this.plotBOLL(indicator, id, data);
 
           } else {
-            this.chart.addSeries({
-              type: 'line',
-              // id: indicator,
-              id: id,
-              name: id,
-              data: vals,
-              // yAxis: 2
-            })
+            this.plotLine(indicator, id, vals, data[indicator].params);
           }
         }
       }));
@@ -309,30 +383,7 @@ export class CoinAnalysisComponent implements OnInit {
   private subBacktestData() {
     this.subs.push(this.coinService.onBacktestData()
       .subscribe((data: any) => {
-        let flags = [];
-        let flagColor = '#ff4143';
-        for (let entry in data.flags) {
-          flagColor = '#ff4143';
-          if (data.flags[entry] === 'up') {
-            flagColor = '#38ca1f';
-          }
-          flags.push({
-            x: parseInt(entry),
-            title: data.flags[entry],
-            text: data.flags[entry],
-            color: flagColor,
-            fillColor: flagColor
-          })
-        }
-
-        this.chart.addSeries({
-          type: 'flags',
-          id: 'flags',
-          data: flags,
-          onSeries: 'series-ohlc',
-          shape: 'squarepin',
-          width: 16
-        })
+        this.plotBacktest(data);
       }));
   }
 
@@ -384,7 +435,7 @@ export class CoinAnalysisComponent implements OnInit {
     if (id in this.activeIndicators) {
       return;
     }
-    console.log(params);
+
     this.coinService.send({ cmd: 'indicatorsData', options: { symbol: this.symbol, indicator: { type: indicator, params }, source: this.source } });
     this.getActiveIndicators()
       .subscribe(indicators => {
@@ -392,7 +443,9 @@ export class CoinAnalysisComponent implements OnInit {
       });
   }
 
-  deleteIndicator(id: string) {
+  deleteIndicator(legendID: string) {
+    // TODO retarded splitting .... 8=====3 (_o_)
+    let id = legendID.split(":")[0];
     let indicator = id.split('_')[0];
     let deleteIDs = [];
 
@@ -411,7 +464,7 @@ export class CoinAnalysisComponent implements OnInit {
           newHeight = (this.SIZES.volume.top / (2 ** (axisCtr - 1))) - this.SIZES.offset;
         }
 
-        // not scalable... TODO
+        // non scalable... TODO
         this.prevAxis = this.objectKeys(this.indicatorAxis)[axisCtr - 1];
         let previousYAxis = this.chart.get(this.prevAxis);
 
@@ -427,16 +480,16 @@ export class CoinAnalysisComponent implements OnInit {
         deleteIDs.push(indicator);
       } else {
         if (indicator == 'macd') {
-          deleteIDs.push(id + '_macd');
-          deleteIDs.push(id + '_signal');
+          deleteIDs.push(id + ':macd');
+          deleteIDs.push(id + ':signal');
         } else {
           deleteIDs.push(id);
         }
       }
     } else if (indicator === 'boll') {
-      deleteIDs.push(id + '_ma');
-      deleteIDs.push(id + '_upper');
-      deleteIDs.push(id + '_lower');
+      deleteIDs.push(id + ':ma');
+      deleteIDs.push(id + ':upper');
+      deleteIDs.push(id + ':lower');
     } else {
       deleteIDs.push(id);
     }
@@ -452,7 +505,6 @@ export class CoinAnalysisComponent implements OnInit {
   }
 
   runBacktest(): void {
-    console.log({ cmd: 'run-backtest', options: { symbol: this.symbol, strategy: this.selectedStrategy, source: this.source } });
     this.coinService.send({ cmd: 'run-backtest', options: { symbol: this.symbol, strategy: this.selectedStrategy, source: this.source } });
   }
 
@@ -695,10 +747,48 @@ export class CoinAnalysisComponent implements OnInit {
         },
         errorbar: {
           color: 'white'
+        },
+        line: {
+          showCheckbox: true,
+          events: {
+            checkboxClick: function (event) {
+              if (!event.checked) {
+                this.hide();
+              } else {
+                this.show();
+              }
+            },
+            legendItemClick: function (event) {
+              this.deleteIndicator(event.target.userOptions.id);
+              // this.remove(true); 
+              return false;
+            }.bind(this)
+          }
+        },
+        flags: {
+          showCheckbox: true,
+          events: {
+            checkboxClick: function (event) {
+              if (!event.checked) {
+                this.hide();
+              } else {
+                this.show();
+              }
+            },
+            legendItemClick: function (event) {
+              this.deleteIndicator(event.target.userOptions.id);
+              return false;
+            }.bind(this)
+          }
         }
       },
 
       legend: {
+        enabled: true,
+        align: 'right',
+        layout: 'vertical',
+        verticalAlign: 'top',
+        y: 100,
         itemStyle: {
           color: '#E0E0E3'
         },

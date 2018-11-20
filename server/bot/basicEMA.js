@@ -1,6 +1,5 @@
 
 const EMA = require('../indicators/EMA');
-const MA = require('../indicators/MA');
 
 var BasicEMA = function (params) {
     this.lastFlag = 0; // 1 for up, 0 for down
@@ -8,6 +7,8 @@ var BasicEMA = function (params) {
     this.buy = {};
     this.flags = {};
     this.params = params;
+    this.name = "BasicEMA";
+    this.description = "Take a short and a long EMA. Mark Buy Flag whenever shortEMA goes higher than longEMA, mark Sell Flag when shortEMA goes lower than longEMA.";
     this.init();
 }
 
