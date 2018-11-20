@@ -4,13 +4,18 @@
 *  e.g. const EMA = require('../indicators/EMA');
 */
 
+var name = "<<NAME>>";
+var name = "<<DESCRIPTION>>";
 
 // DO NOT EDIT
-var Strategy = function () {
+var Strategy = function (params) {
     this.lastFlag = 0; // 1 for up, 0 for down
     this.profits = {};
     this.buy = {};
     this.flags = {};
+    this.params = params;
+    this.name = name;
+    this.description = description;
     this.init();
 }
 
@@ -37,11 +42,11 @@ Strategy.prototype.check = function () {
     *  DO ALL YOUR CHECKS AND DICISIONS
     *  e.g 
        if (diff3 < 0 && diff2 >= 0 && diff1 > 0 && this.lastFlag == 0) {
-            this.flags[time] = 'up';
+            this.flags[time] = 'buy';
             this.lastFlag = 1;
             this.record('buy', time, price);
         } else if (diff2 > 0 && diff1 <= 0 && this.lastFlag == 1) {
-            this.flags[time] = 'down';
+            this.flags[time] = 'sell';
             this.lastFlag = 0;
             this.record('sell', time, price);
         }

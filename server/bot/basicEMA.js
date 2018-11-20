@@ -1,14 +1,17 @@
 
 const EMA = require('../indicators/EMA');
 
+var name = "BasicEMA";
+var description = "Take a short and a long EMA. Mark Buy Flag whenever shortEMA goes higher than longEMA, mark Sell Flag when shortEMA goes lower than longEMA.";
+
 var BasicEMA = function (params) {
     this.lastFlag = 0; // 1 for up, 0 for down
     this.profits = {};
     this.buy = {};
     this.flags = {};
     this.params = params;
-    this.name = "BasicEMA";
-    this.description = "Take a short and a long EMA. Mark Buy Flag whenever shortEMA goes higher than longEMA, mark Sell Flag when shortEMA goes lower than longEMA.";
+    this.name = name;
+    this.description = description;
     this.init();
 }
 
@@ -59,11 +62,11 @@ BasicEMA.prototype.check = function () {
         let time = this.ema10.result[ema10Length - 1].time + 60000; // close time + 1 ms
 
         if (diff3 < 0 && diff2 >= 0 && diff1 > 0 && this.lastFlag == 0) {
-            this.flags[time] = 'up';
+            this.flags[time] = 'buy';
             this.lastFlag = 1;
             this.record('buy', time, price);
         } else if (diff2 > 0 && diff1 <= 0 && this.lastFlag == 1) {
-            this.flags[time] = 'down';
+            this.flags[time] = 'sell';
             this.lastFlag = 0;
             this.record('sell', time, price);
         }

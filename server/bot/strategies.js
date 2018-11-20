@@ -1,4 +1,11 @@
 
+const BasicEMA = require('./basicEMA');
+
+basicEMA = new BasicEMA();
+
 module.exports = {
-    'BasicEMA': 'basicEMA.js'
+    'BasicEMA': {
+        name: basicEMA.name,
+        description: basicEMA.description
+    }
 }

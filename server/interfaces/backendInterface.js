@@ -85,7 +85,7 @@ BackendInterface.prototype.clientRequest = async function (req, options) {
             break;
 
         case 'strategies':
-            this.broadcast(req + ':' + options.symbol, Object.keys(this.am.getStrategies()));
+            this.broadcast(req + ':' + options.symbol, this.am.getStrategies());
             break;
 
         case 'indicators':

@@ -6,8 +6,8 @@
     <mat-card class="coin-card" *ngFor="let coin of coins" [attr.id]="coin">
       <mat-card-header>
         <mat-card-title>
-          <button mat-raised-button color="primary" [routerLink]="['/analysis', coin , 'kline']">{{coin}}</button>
-          <button mat-raised-button color="secondary" [routerLink]="['/analysis', coin , 'backtest']">{{coin}}</button>
+          <!-- <button mat-raised-button color="primary" [routerLink]="['/analysis', coin , 'kline']">{{coin}}</button> -->
+          <button mat-raised-button color="primary" [routerLink]="['/analysis', coin , 'backtest']">{{coin}}</button>
         </mat-card-title>
       </mat-card-header>
       <!-- <mat-card-actions>

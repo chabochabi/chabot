@@ -48,7 +48,7 @@ export class CoinAnalysisComponent implements OnInit {
   indicatorsDefaultParams: any = {};
   activeIndicators: any = {};
   selectedStrategy: string;
-  strategies: any[] = [];
+  strategies: any = {};
 
   // TODO fix this static BS
   indicatorAxis: any = {
@@ -320,14 +320,14 @@ export class CoinAnalysisComponent implements OnInit {
     let flagColor = '#ff4143';
     for (let entry in data.flags) {
       flagColor = '#ff4143';
-      if (data.flags[entry] === 'up') {
+      if (data.flags[entry] === 'buy') {
         flagColor = '#38ca1f';
       }
       flags.push({
         x: parseInt(entry),
         title: data.flags[entry],
         text: data.flags[entry],
-        color: flagColor,
+        color: "white",
         fillColor: flagColor
       });
     }
@@ -339,8 +339,12 @@ export class CoinAnalysisComponent implements OnInit {
       data: flags,
       onSeries: 'series-ohlc',
       shape: 'squarepin',
-      width: 14,
-      selected: true
+      width: 16,
+      selected: true,
+      style: {
+        fontSize: "10px"
+      },
+      stackDistance: 20
     });
   }
 

@@ -19,6 +19,10 @@
     margin: auto;
   } */
 
+.analysis-block {
+    margin-top: 10px;
+}
+
 .ohlc-chart {
     width: 100%;
 }
@@ -26,13 +30,13 @@
 .mat-grid-tile {
     color: #cccccc;
     text-align: center;
-    font-size: 10px;
+    font-size: 14px;
 }
 
 .trades-list {
     height: 600px;
     overflow: auto;
-    min-width: auto !important;
+    /* min-width: auto !important; */
     width: 100% !important;
 }
 
@@ -49,13 +53,17 @@
     font-size: 12px;
     text-align: center;
     flex: 0 0 30% !important;
-    width: 80px !important;
+    min-width: 80px !important;
     /* width: 60px; */
+}
+
+.mat-table {
+    width: 100%;
 }
 
 .mat-cell {
     flex: 0 0 30% !important;
-    width: 80px !important;
+    min-width: 80px !important;
     font-size: 10px;
 }
 
@@ -68,32 +76,31 @@
 
 .mat-grid-tile {
     overflow: auto;
+    background: #424242;
 }
 
 .tech-analysis {
     height: 600px;
 }
 
-/* .blabla {
-    min-width: 0 !important;
-    padding: 3px!important;
-    margin: 3px!important;
+/* .mat-form-field {
+    width: 90%;
 } */
 
-.mat-form-field {
-    width: 90%;
-}
-
-.mat-list {
+/* .mat-list {
     padding: 0px;
     width: 100% !important;
-}
+} */
 
-.mat-list-item {
+/* .mat-list-item {
+    font-size: 12px;
+} */
+
+.mat-expansion-panel {
     font-size: 12px;
 }
 
-.mat-expansion-panel {
-    /* height: 30px; */
+.strat-description {
+    text-align: left;
     font-size: 12px;
 }

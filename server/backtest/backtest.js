@@ -1,6 +1,7 @@
 
 const BasicEMA = require('../bot/basicEMA');
 const EventEmitter = require('events');
+const strategies = require('../bot/strategies');
 
 var Backtest = function (backtestManager, emitter) {
     this.emitter = emitter;
@@ -48,7 +49,7 @@ Backtest.prototype.run = function (symbol, source, strategy, params) {
 
     console.log(' running backtest: '+strategy);
     switch (strategy) {
-        case 'BasicEMA':
+        case strategies.BasicEMA:
             this.testStrat = new BasicEMA(params);
             break;
     
