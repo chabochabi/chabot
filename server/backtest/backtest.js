@@ -1,49 +1,43 @@
 
 const BasicEMA = require('../bot/basicEMA');
+const EventEmitter = require('events');
 
 var Backtest = function (backtestManager, emitter) {
     this.emitter = emitter;
+    // TODO this local emitter idea is kinda stupid
+    this.btEmitter = new EventEmitter();
     this.bm = backtestManager;
 }
 
-Backtest.prototype.simulateStream = function (data) {
+Backtest.prototype.simulateStream = function (symbol, source, data) {
     for (let i = 0; i < data.length; i++) {
-        this.emitter.emit('backtest', data.slice(0, i + 1));
+        this.btEmitter.emit('backtest', data.slice(0, i + 1));
     }
-    this.emitter.emit('backtestDone');
+    this.btEmitter.emit('backtestDone', symbol, source);
 }
 
-Backtest.prototype.evaluate = function () {
+Backtest.prototype.evaluate = function (symbol, source) {
 
-    let profits = this.testStrat.profits;
-    let totalProfit = 0;
-    let fee = 0.1;
+    var profits = this.testStrat.profits;
+    var totalProfit = 0;
+    var fee = 0.1;
 
-    console.log('running strategy evaluation ... ');
+    console.log('running strategy evaluation ... ', symbol, source);
 
     for (let sellTime in profits) {
         
         let buyTime = profits[sellTime].buy.time;
-        let buyKline = this.bm.getKlineDataEntry(this.symbol, this.source, parseInt(buyTime));
+        let buyKline = this.bm.getKlineDataEntry(symbol, source, parseInt(buyTime));
         let buyPrice = buyKline.open;
         buyPrice = buyPrice - ((fee/100)*buyPrice);
 
-        let sellKline = this.bm.getKlineDataEntry(this.symbol, this.source, parseInt(sellTime));
+        let sellKline = this.bm.getKlineDataEntry(symbol, source, parseInt(sellTime));
         let sellPrice = sellKline.open;
         sellPrice = sellPrice - ((fee/100)*sellPrice);
 
         let profit = sellPrice - buyPrice;
         let profitRatio = ((profit / buyPrice) * 100);
         totalProfit += profitRatio;
-
-        // let date = new Date(parseInt(sellTime));
-        // if (profit > 0) {
-        //     console.log('   (+)  ', profitRatio);
-        //     console.log('        ', date.getDay(), date.getHours()+':'+date.getMinutes());
-        // } else {
-        //     console.log('   (-) ', profitRatio);
-        //     console.log('        ', date.getDay(), date.getHours()+':'+date.getMinutes());
-        // }
     }
 
     console.log('\n TOTAL PROFIT: ', totalProfit);
@@ -53,8 +47,6 @@ Backtest.prototype.evaluate = function () {
 Backtest.prototype.run = function (symbol, source, strategy, params) {
 
     console.log(' running backtest: '+strategy);
-    this.symbol = symbol;
-    this.source = source;
     switch (strategy) {
         case 'basicEMA':
             this.testStrat = new BasicEMA(params);
@@ -65,21 +57,19 @@ Backtest.prototype.run = function (symbol, source, strategy, params) {
             break;
     }
 
-    this.emitter.on('backtest', (function (data) {
+    // event coming every time a candlestick item is loaded
+    this.btEmitter.on('backtest', (function (data) {
         this.testStrat.update(data);
     }).bind(this));
     
-    this.emitter.on('backtestDone', (function () {
+    // event coming when all candlestick items are loaded and backtesting is finished
+    this.btEmitter.on('backtestDone', (function (symbol, source) {
         console.log(' BACKTEST DONE');
-        let profit = this.evaluate();
+        let profit = this.evaluate(symbol, source);
         this.emitter.emit('backtestData', { flags: this.testStrat.flags, profit: profit });
     }).bind(this));
 
-
-    this.simulateStream(this.bm.getBacktestData(this.symbol, this.source));
+    this.simulateStream(symbol, source, this.bm.getBacktestData(symbol, source));
 }
 
 module.exports = Backtest;
-
-// var test = new Backtest();
-// test.check(); 

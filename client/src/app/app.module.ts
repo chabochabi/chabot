@@ -18,6 +18,8 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatTabsModule } from '@angular/material/tabs';
+
 
 import { CdkTableModule } from '@angular/cdk/table';
 
@@ -63,6 +65,7 @@ import { AnalysisComponent } from './analysis/analysis.component';
     MatCardModule,
     MatButtonModule,
     MatGridListModule,
+    MatTabsModule,
     CdkTableModule,
     ReactiveFormsModule,
     BrowserAnimationsModule

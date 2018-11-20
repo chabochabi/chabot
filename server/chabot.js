@@ -3,7 +3,7 @@ const DataManager = require('./managers/dataManager');
 const BacktestManager = require('./managers/backtestManager');
 const AnalysisManager = require('./managers/analysisManager');
 const EventEmitter = require('events');
-const DataInterface = require('./interfaces/ifData');
+// const DataInterface = require('./interfaces/ifData');
 const BackendInterface = require('./interfaces/backendInterface')
 const program = require('commander');
 

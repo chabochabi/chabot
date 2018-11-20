@@ -62,11 +62,11 @@ export class CoinAnalysisComponent implements OnInit {
   SIZES = {
     data: {
       top: 0,
-      heigth: 80
+      height: 90
     },
     volume: {
-      top: 80,
-      heigth: 20
+      top: 90,
+      height: 10
     },
     offset: 2
   }
@@ -384,7 +384,7 @@ export class CoinAnalysisComponent implements OnInit {
     if (id in this.activeIndicators) {
       return;
     }
-
+    console.log(params);
     this.coinService.send({ cmd: 'indicatorsData', options: { symbol: this.symbol, indicator: { type: indicator, params }, source: this.source } });
     this.getActiveIndicators()
       .subscribe(indicators => {
@@ -399,7 +399,7 @@ export class CoinAnalysisComponent implements OnInit {
     if (indicator === 'rsi' || indicator === 'macd') {
 
       let newTop = 0;
-      let newHeight = this.SIZES.data.heigth - this.SIZES.offset;
+      let newHeight = this.SIZES.data.height - this.SIZES.offset;
 
       this.indicatorAxis[indicator].ctr -= 1;
       if (this.indicatorAxis[indicator].ctr == 0) {
@@ -555,7 +555,7 @@ export class CoinAnalysisComponent implements OnInit {
         },
         plotBorderColor: '#606063',
         type: 'candlestick',
-        height: 500
+        height: 600
       },
 
       rangeSelector: {
@@ -642,7 +642,7 @@ export class CoinAnalysisComponent implements OnInit {
           },
           text: 'OHLC',
         },
-        height: this.SIZES.data.heigth + '%',
+        height: this.SIZES.data.height + '%',
         lineWidth: 2,
         resize: {
           enabled: true
@@ -662,7 +662,7 @@ export class CoinAnalysisComponent implements OnInit {
           text: 'Volume'
         },
         top: this.SIZES.volume.top + '%',
-        height: (this.SIZES.volume.heigth - this.SIZES.offset) + '%',
+        height: (this.SIZES.volume.height - this.SIZES.offset) + '%',
         lineWidth: 2
       }
       ],

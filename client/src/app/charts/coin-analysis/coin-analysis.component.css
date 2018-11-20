@@ -30,7 +30,7 @@
 }
 
 .trades-list {
-    height: 500px;
+    height: 600px;
     overflow: auto;
     min-width: auto !important;
     width: 100% !important;
@@ -60,10 +60,24 @@
 }
 
 .indicators {
-    height: 500px;
+    height: 100%;
     overflow: auto;
-    min-width: auto !important;
+    /* min-width: auto !important; */
     width: 100% !important;
+}
+
+.tech-analysis {
+    height: 600px;
+}
+
+/* .blabla {
+    min-width: 0 !important;
+    padding: 3px!important;
+    margin: 3px!important;
+} */
+
+.mat-form-field {
+    width: 90%;
 }
 
 .mat-list {

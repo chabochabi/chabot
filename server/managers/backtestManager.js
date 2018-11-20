@@ -17,12 +17,13 @@ var parseKlineBacktest = function (kline) {
 }
 
 BacktestManager.prototype.runBacktest = async function (symbol, source, strategy) {
-    this.bt = new Backtest(this, this.emitter);
+    bt = new Backtest(this, this.emitter);
 
     if (!this.dm.hasSymbol(symbol, source)) {
         await this.loadBacktestData(symbol);
     }
-    this.bt.run(symbol, source, strategy);
+
+    bt.run(symbol, source, strategy);
 }
 
 BacktestManager.prototype.getKlineDataEntry = function (symbol, source, openTime) {
