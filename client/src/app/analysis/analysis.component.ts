@@ -521,10 +521,13 @@ export class AnalysisComponent implements OnInit {
     } else {
       trade.color = '#ff4143';
     }
+
+    // TODO this could be causing performance issues
     this.trades.unshift(trade);
-    if (this.trades.length > 150) {
+    if (this.trades.length > 50) {
       this.trades.pop();
     }
+
     this.tradeListDataSource.data = this.trades;
   }
 
@@ -797,7 +800,7 @@ export class AnalysisComponent implements OnInit {
 
       legend: {
         enabled: true,
-        align: 'right',
+        align: 'left',
         layout: 'vertical',
         verticalAlign: 'top',
         y: 100,

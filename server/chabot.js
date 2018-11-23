@@ -103,7 +103,8 @@ if (program.ui) {
     var chabot = new Chabot();
     chabot.run('test');
 } else {
-    console.log('\n * without UI\n\n\n');
-    var chabot = new Chabot();
-    chabot.run('online');
+    console.log(program.helpInformation());
+    // console.log('\n * without UI\n\n\n');
+    // var chabot = new Chabot();
+    // chabot.run('online');
 }
