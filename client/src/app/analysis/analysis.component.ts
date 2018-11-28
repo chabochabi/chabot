@@ -45,8 +45,8 @@ export class AnalysisComponent implements OnInit {
   indicators: any = {};
   indicatorsDefaultParams: any = {};
   activeIndicators: any = {};
-  selectedStrategy: string;
   strategies: any = {};
+  backtestResults: any = {};
 
   // TODO fix this static BS
   indicatorAxis: any = {
@@ -385,6 +385,7 @@ export class AnalysisComponent implements OnInit {
   private subBacktestData() {
     this.subs.push(this.coinService.onBacktestData()
       .subscribe((data: any) => {
+        this.backtestResults = data;
         this.plotBacktest(data);
       }));
   }
@@ -446,7 +447,7 @@ export class AnalysisComponent implements OnInit {
   }
 
   deleteIndicator(legendID: string) {
-    // TODO retarded splitting .... 8=====3 (_o_)
+    // TODO ugly splitting .... 8=====3 (_o_)
     let id = legendID.split(":")[0];
     let indicator = id.split('_')[0];
     let deleteIDs = [];
@@ -506,8 +507,11 @@ export class AnalysisComponent implements OnInit {
     return of(this.activeIndicators);
   }
 
-  runBacktest(): void {
-    this.coinService.send({ cmd: 'run-backtest', options: { symbol: this.symbol, strategy: this.selectedStrategy, source: this.source } });
+  runBacktest(strategy: string): void {
+    if (Object.keys(this.backtestResults).length > 0) {
+      this.deleteIndicator(this.backtestResults.strategy);
+    }
+    this.coinService.send({ cmd: 'run-backtest', options: { symbol: this.symbol, strategy: strategy, source: this.source, params: this.strategies[strategy].params} });
   }
 
   private updateTradesList(trade): void {
@@ -670,7 +674,7 @@ export class AnalysisComponent implements OnInit {
           count: 1,
           text: 'All'
         }],
-        selected: 5,
+        selected: 3,
         inputEnabled: false
       },
 
@@ -775,7 +779,6 @@ export class AnalysisComponent implements OnInit {
             },
             legendItemClick: function (event) {
               this.deleteIndicator(event.target.userOptions.id);
-              // this.remove(true); 
               return false;
             }.bind(this)
           }
@@ -792,6 +795,7 @@ export class AnalysisComponent implements OnInit {
             },
             legendItemClick: function (event) {
               this.deleteIndicator(event.target.userOptions.id);
+              this.backtestResults = {};
               return false;
             }.bind(this)
           }

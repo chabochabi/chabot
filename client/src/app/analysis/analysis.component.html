@@ -26,8 +26,7 @@
                       </mat-panel-title>
                     </mat-expansion-panel-header>
                     <mat-form-field *ngFor="let param of objectKeys(indicatorsDefaultParams[indicator])">
-                      <input matInput type="number" placeholder="{{param}}" value="{{indicatorsDefaultParams[indicator][param]}}"
-                        [(ngModel)]="indicators[indicator].params[param]">
+                      <input matInput type="number" placeholder="{{param}}" value="{{indicatorsDefaultParams[indicator][param]}}" [(ngModel)]="indicators[indicator].params[param]">
                     </mat-form-field>
                     <br>
                     <button mat-mini-fab color="primary" title="add indicator" (click)="addIndicator(indicator)">+</button>
@@ -36,6 +35,31 @@
               </div>
             </mat-tab>
             <mat-tab label="Backtest">
+              <div>
+                <table class="backtest-results">
+                  <tbody *ngIf="backtestResults.results != undefined">
+                    <tr>
+                      <td>Revenue</td>
+                      <td>{{backtestResults.results.totalRevenue}} BTC</td>
+                    </tr>
+                    <tr>
+                      <td>Revenue (%)</td>
+                      <td>{{backtestResults.results.totalRevenuePercent}}</td>
+                    </tr>
+                  </tbody>
+                  <tbody *ngIf="backtestResults.results == undefined">
+                    <tr>
+                      <td>Revenue</td>
+                      <td>- -</td>
+                    </tr>
+                    <tr>
+                      <td>Revenue (%)</td>
+                      <td>- -</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <mat-divider></mat-divider>
               <mat-accordion>
                 <mat-expansion-panel *ngFor="let strategy of objectKeys(strategies)">
                   <mat-expansion-panel-header>
@@ -46,7 +70,11 @@
                   <div class="strat-description">
                     <span>{{strategies[strategy].description}}</span>
                   </div>
-                  <button mat-mini-fab color="primary" title="Select Strategy" (click)="runBacktest(indicator)">go!</button>
+                  <mat-form-field *ngFor="let param of objectKeys(strategies[strategy].params)">
+                    <input matInput type="number" placeholder="{{param}}" value="{{strategies[strategy][param]}}" [(ngModel)]="strategies[strategy].params[param]">
+                  </mat-form-field>
+                  <br>
+                  <button mat-mini-fab color="primary" title="Select Strategy" (click)="runBacktest(strategy)">go!</button>
                 </mat-expansion-panel>
               </mat-accordion>
             </mat-tab>

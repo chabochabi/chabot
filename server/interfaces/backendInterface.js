@@ -97,7 +97,7 @@ BackendInterface.prototype.clientRequest = async function (req, options) {
             break;
 
         case 'run-backtest':
-            this.bm.runBacktest(options.symbol, options.source, options.strategy);
+            this.bm.runBacktest(options.symbol, options.source, options.strategy, options.params);
             break;
 
         default:

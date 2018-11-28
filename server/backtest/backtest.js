@@ -1,5 +1,6 @@
 
 const BasicEMA = require('../bot/basicEMA');
+const DeltaEMA = require('../bot/deltaEMA');
 const EventEmitter = require('events');
 const strategies = require('../bot/strategies');
 
@@ -20,39 +21,78 @@ Backtest.prototype.simulateStream = function (symbol, source, data) {
 Backtest.prototype.evaluate = function (symbol, source) {
 
     var profits = this.testStrat.profits;
-    var totalProfit = 0;
+    var totalRevenue = 0;
+    var totalRevenuePercent = 0;
+    var singleRevenues = [];
+    var singleRevenuesPercent = [];
     var fee = 0.1;
+    var firstBuy;
+    var lastSell;
+    var results = {};
 
     console.log('running strategy evaluation ... ', symbol, source);
 
     for (let sellTime in profits) {
-        
+
         let buyTime = profits[sellTime].buy.time;
         let buyKline = this.bm.getKlineDataEntry(symbol, source, parseInt(buyTime));
         let buyPrice = buyKline.open;
-        buyPrice = buyPrice - ((fee/100)*buyPrice);
+        // buyPrice = buyPrice - (fee*buyPrice);
 
-        let sellKline = this.bm.getKlineDataEntry(symbol, source, parseInt(sellTime));
+        sellTime = parseInt(sellTime);
+        let sellKline = this.bm.getKlineDataEntry(symbol, source, sellTime);
         let sellPrice = sellKline.open;
-        sellPrice = sellPrice - ((fee/100)*sellPrice);
+        // sellPrice = sellPrice - (fee*sellPrice);
 
-        let profit = sellPrice - buyPrice;
-        let profitRatio = ((profit / buyPrice) * 100);
-        totalProfit += profitRatio;
+        if (firstBuy == undefined) {
+            firstBuy = {};
+            firstBuy.time = buyTime;
+            firstBuy.price = buyPrice;
+        } else if (firstBuy.time > buyTime) {
+            firstBuy.time = buyTime;
+            firstBuy.price = buyPrice;
+        }
+
+        if (lastSell == undefined) {
+            lastSell = {};
+            lastSell.time = sellTime;
+            lastSell.price = sellPrice;
+        } else if (lastSell.time < sellTime) {
+            lastSell.time = sellTime;
+            lastSell.price = sellPrice;
+        }
+
+        let singleRevenue = sellPrice - buyPrice;
+        let singleRevenuePercent = ((singleRevenue / buyPrice) * 100);
+        singleRevenues.push(singleRevenue);
+        singleRevenuesPercent.push(singleRevenuePercent);
+        totalRevenue += singleRevenue;
+        totalRevenuePercent += singleRevenuePercent;
     }
 
-    console.log('\n TOTAL PROFIT: ', totalProfit);
-    return totalProfit;
+    // console.log('\n TOTAL PROFIT: ', totalRevenue);
+    results.singleRevenues = singleRevenues;
+    results.singleRevenuesPercent = singleRevenuesPercent;
+    results.firstBuy = firstBuy;
+    results.lastSell = lastSell;
+    results.totalRevenue = totalRevenue.toFixed(10);
+    results.totalRevenuePercent = totalRevenuePercent.toFixed(4);
+    // console.log(results);
+    return results;
 }
 
 Backtest.prototype.run = function (symbol, source, strategy, params) {
 
-    console.log(' running backtest: '+strategy);
+    console.log(' running backtest: ' + strategy);
     switch (strategy) {
-        case strategies.BasicEMA:
+        case strategies.BasicEMA.name:
             this.testStrat = new BasicEMA(params);
             break;
-    
+
+        case strategies.DeltaEMA.name:
+            this.testStrat = new DeltaEMA(params);
+            break;
+
         default:
             this.testStrat = new BasicEMA(params);
             break;
@@ -62,12 +102,12 @@ Backtest.prototype.run = function (symbol, source, strategy, params) {
     this.btEmitter.on('backtest', (function (data) {
         this.testStrat.update(data);
     }).bind(this));
-    
+
     // event coming when all candlestick items are loaded and backtesting is finished
     this.btEmitter.on('backtestDone', (function (symbol, source) {
-        console.log(' BACKTEST DONE');
-        let profit = this.evaluate(symbol, source);
-        this.emitter.emit('backtestData', { strategy: this.testStrat.name, description: this.testStrat.description, flags: this.testStrat.flags, profit: profit });
+        console.log(' BACKTEST DONE:', this.testStrat.name);
+        let results = this.evaluate(symbol, source);
+        this.emitter.emit('backtestData', { strategy: this.testStrat.name, description: this.testStrat.description, flags: this.testStrat.flags, results: results });
     }).bind(this));
 
     this.simulateStream(symbol, source, this.bm.getBacktestData(symbol, source));

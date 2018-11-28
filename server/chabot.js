@@ -21,8 +21,14 @@ Chabot.prototype.run = async function (mode) {
     switch (mode) {
 
         case 'backtest':
-            let sym = 'ETHBTC';
-            this.bm.runBacktest(sym, 'backtest', 'basicEMA');
+            let sym = 'ADABTC';
+            // this.bm.runBacktest(sym, 'backtest', 'BasicEMA');
+            let params = {
+                short: 10,
+                long: 19,
+                delta: 0.0001
+            }
+            this.bm.runBacktest(sym, 'backtest', 'DeltaEMA', params);
             break;
 
         case 'offline':

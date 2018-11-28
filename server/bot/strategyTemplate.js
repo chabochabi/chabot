@@ -5,7 +5,18 @@
 */
 
 var name = "<<NAME>>";
-var name = "<<DESCRIPTION>>";
+var description = "<<DESCRIPTION>>";
+var defaultParams = "<<DEFAULT_PARAMS>>";
+
+var checkParams = function (params) {
+    if (!params)
+        return false;
+    for (let p in defaultParams) {
+        if (!(p in params))
+            return false;
+    }
+    return true;
+}
 
 // DO NOT EDIT
 var Strategy = function (params) {
@@ -13,7 +24,10 @@ var Strategy = function (params) {
     this.profits = {};
     this.buy = {};
     this.flags = {};
-    this.params = params;
+    this.params = defaultParams;
+    if (checkParams(params)) {
+        this.params = params;
+    }
     this.name = name;
     this.description = description;
     this.init();

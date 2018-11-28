@@ -78,3 +78,17 @@
     text-align: left;
     font-size: 12px;
 }
+
+.backtest-results {
+    text-align: left;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+table.backtest-results td {
+    padding: 15px;
+}
+
+.backtest-results-label {
+    font-size: 20px;
+}
