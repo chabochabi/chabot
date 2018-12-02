@@ -56,19 +56,20 @@ DeltaEMA.prototype.check = function () {
     var longLen = this.longEMA.result.length;
 
     if (longLen >= 1) {
-        var shortPrice = this.shortEMA.result[shortLen - 1].value;
-        var longPrice = this.longEMA.result[longLen - 1].value
-        var diff = ((shortPrice - longPrice)/shortPrice)*100;
+        var shortValue = this.shortEMA.result[shortLen - 1].value;
+        var longValue = this.longEMA.result[longLen - 1].value
+        var diff = ((shortValue - longValue)/shortValue)*100;
         let time = this.shortEMA.result[shortLen - 1].time + 60000; // close time + 1 ms
+        let price = this.longEMA.result[longLen - 1].price;
 
         if (diff >= this.delta && this.lastFlag == 0) {
             this.flags[time] = 'buy';
             this.lastFlag = 1;
-            this.record('buy', time, shortPrice);
+            this.record('buy', time, price);
         } else if (diff <= this.delta && this.lastFlag == 1){
             this.flags[time] = 'sell';
             this.lastFlag = 0;
-            this.record('sell', time, shortPrice);
+            this.record('sell', time, price);
         }
     }
 }

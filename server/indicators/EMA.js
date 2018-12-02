@@ -25,12 +25,14 @@ EMA.prototype.calc = function (data) {
                 lastEMA = smaSum / this.frameLength;
                 emaData.push({
                     time: entry.openTime,
-                    value: lastEMA
+                    value: lastEMA,
+                    price: entry.close
                 });
             } else {
                 emaData.push({
                     time: entry.openTime,
-                    value: (entry.close - lastEMA) * multiplier + lastEMA
+                    value: (entry.close - lastEMA) * multiplier + lastEMA,
+                    price: entry.close
                 })
                 lastEMA = (entry.close - lastEMA) * multiplier + lastEMA;
             }

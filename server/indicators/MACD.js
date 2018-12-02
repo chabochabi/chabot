@@ -45,12 +45,13 @@ MACD.prototype.calc = function(data) {
         let slowEMA = slowData[i];
         let fastEMA = fastData[i + this.slow - this.fast];
         macdSignal.push({
-            openTime: slowEMA.time,
-            close: fastEMA.value - slowEMA.value
+            openTime: slowEMA.time, // openTime instead of time, so that EMA works
+            close: fastEMA.value - slowEMA.value, // close instead of time, so that EMA works
         })
         macdData.push({
             time: slowEMA.time,
-            value: fastEMA.value - slowEMA.value
+            value: fastEMA.value - slowEMA.value,
+            price: slowEMA.price
         })
     }
 

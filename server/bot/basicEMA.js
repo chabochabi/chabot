@@ -55,7 +55,7 @@ BasicEMA.prototype.check = function () {
         let diff1 = this.ema10.result[ema10Length - 1].value - this.ema20.result[ema20Length - 1].value; // ema10 > ema20
         let diff2 = this.ema10.result[ema10Length - 2].value - this.ema20.result[ema20Length - 2].value; // ema10 >= ema10
         let diff3 = this.ema10.result[ema10Length - 3].value - this.ema20.result[ema20Length - 3].value; // ema10 < ema20
-        let price = this.ema10.result[ema10Length - 1].value;
+        let price = this.ema10.result[ema10Length - 1].price;
         let time = this.ema10.result[ema10Length - 1].time + 60000; // close time + 1 ms
 
         if (diff3 < 0 && diff2 >= 0 && diff1 > 0 && this.lastFlag == 0) {

@@ -24,11 +24,11 @@ Chabot.prototype.run = async function (mode) {
             let sym = 'ADABTC';
             // this.bm.runBacktest(sym, 'backtest', 'BasicEMA');
             let params = {
-                short: 10,
-                long: 19,
-                delta: 0.0001
+                fast: 9,
+                slow: 26,
+                signal: 9
             }
-            this.bm.runBacktest(sym, 'backtest', 'DeltaEMA', params);
+            this.bm.runBacktest(sym, 'backtest', 'BasicMACD', params);
             break;
 
         case 'offline':
@@ -110,7 +110,4 @@ if (program.ui) {
     chabot.run('test');
 } else {
     console.log(program.helpInformation());
-    // console.log('\n * without UI\n\n\n');
-    // var chabot = new Chabot();
-    // chabot.run('online');
 }
