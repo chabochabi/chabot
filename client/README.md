@@ -6,7 +6,7 @@ This is the frontend, go to server for the backend
 
 ## Run
 
-`ng serve` for a dev server. Go to `http://localhost:4200/`.
+`npm start` starts dev server. Go to `http://localhost:4200/`.
 
 ## Overview
 

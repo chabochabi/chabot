@@ -13,7 +13,7 @@ For now you'll have to run the client and server part seperately:
 
 ### Client: 
 
-`ng serve` starts the dev server `http://localhost:4200/`.
+`npm start` starts the dev server `http://localhost:4200/`.
 
 ### Server:
 
