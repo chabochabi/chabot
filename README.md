@@ -19,7 +19,7 @@ For now you'll have to run the client and server part seperately:
 
 There are different modes for the server:
 
-`node chabot.js --ui`: "live" mode, which streams live market data.
+`node chabot.js --live`: "live" mode, which streams live market data.
 
 `node chabot.js --offline`: "offline" mode, which provides backtest data only.
 
