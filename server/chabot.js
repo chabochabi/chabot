@@ -72,7 +72,7 @@ module.exports = Chabot;
 
 program
     .version('0.1.0')
-    .option('--ui', 'run with web UI')
+    .option('--live', 'run with live data and web UI')
     .option('--offline', 'run with offline data and web UI')
     .option('--bt', 'backtest with offline data')
     .option('--record', 'record market data')
@@ -87,8 +87,8 @@ console.log('\n\n',
     '   \\___  >___|  (____  /___  /\\____/|__|     \n',
     '       \\/     \\/     \\/    \\/                \n');
 
-if (program.ui) {
-    console.log('\n * with UI\n\n');
+if (program.live) {
+    console.log('\n * with live data and web UI\n\n');
     const server = require('./server');
     // return require('./server');
     return server.start('online');
