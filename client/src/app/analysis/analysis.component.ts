@@ -447,7 +447,7 @@ export class AnalysisComponent implements OnInit {
   }
 
   deleteIndicator(legendID: string) {
-    // TODO ugly splitting .... 8=====3 (_o_)
+    // TODO ugly splitting ....
     let id = legendID.split(":")[0];
     let indicator = id.split('_')[0];
     let deleteIDs = [];

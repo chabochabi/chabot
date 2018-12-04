@@ -35,6 +35,22 @@ AnalysisManager.prototype.calcIndicator = function (options) {
                 }
             }
             break;
+        case 'DEMA':
+            indicatorData = {
+                dema: {
+                    data: this.analyzer.DEMA(this.dm.readAll(options.symbol, options.source), options.indicator.params),
+                    params: options.indicator.params
+                }
+            }
+            break;
+        case 'TEMA':
+            indicatorData = {
+                tema: {
+                    data: this.analyzer.TEMA(this.dm.readAll(options.symbol, options.source), options.indicator.params),
+                    params: options.indicator.params
+                }
+            }
+            break;
         case 'RSI':
             indicatorData = {
                 rsi: {

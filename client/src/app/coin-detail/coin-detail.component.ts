@@ -156,7 +156,7 @@ export class CoinDetailComponent implements OnInit {
         })
       }));
 
-    // display indicator data on incoming indicators .... TODO this shit is waaaaay too long, maybe split up into functions or something like that    8=====3 (_o_)
+    // display indicator data on incoming indicators .... TODO this shit is waaaaay too long, maybe split up into functions or something like that
     this.subs.push(this.coinService.onIndicatorsData(this.symbol)
       .subscribe((data: any) => {
         let vals = [];

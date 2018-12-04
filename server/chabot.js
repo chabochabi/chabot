@@ -3,7 +3,6 @@ const DataManager = require('./managers/dataManager');
 const BacktestManager = require('./managers/backtestManager');
 const AnalysisManager = require('./managers/analysisManager');
 const EventEmitter = require('events');
-// const DataInterface = require('./interfaces/ifData');
 const BackendInterface = require('./interfaces/backendInterface')
 const program = require('commander');
 
@@ -55,11 +54,18 @@ Chabot.prototype.run = async function (mode) {
             break;
 
         case 'test':
-            config = {
-                tosym: 'BTC',
-                interval: '1m'
+            options = {
+                symbol: "ETHBTC",
+                source: "backtest",
+                indicator: {
+                    type: "TEMA",
+                    params: {
+                        frameLength: 10
+                    }
+                }
             }
-            this.mm.openAllStreams('trades', config);
+            await this.bm.loadBacktestData('ETHBTC');
+            this.am.calcIndicator(options)
             break;
     }
 }

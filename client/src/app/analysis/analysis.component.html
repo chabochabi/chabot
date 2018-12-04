@@ -70,6 +70,7 @@
                   <div class="strat-description">
                     <span>{{strategies[strategy].description}}</span>
                   </div>
+                  <br>
                   <mat-form-field *ngFor="let param of objectKeys(strategies[strategy].params)">
                     <input matInput type="number" placeholder="{{param}}" value="{{strategies[strategy][param]}}" [(ngModel)]="strategies[strategy].params[param]">
                   </mat-form-field>
