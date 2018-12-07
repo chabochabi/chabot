@@ -45,11 +45,11 @@ MarketManager.prototype.storeData = function (symbol, data, type) {
             this.dm.writeKlineBacktest(symbol, data);
             break;
 
-        case 'kline':
+        case 'klines':
             this.dm.writeKline(symbol, data);
             break;
 
-        case 'trade':
+        case 'trades':
             this.dm.writeTrade(symbol, data);
             break;
 
@@ -79,7 +79,7 @@ MarketManager.prototype.openAllStreams = function (type, config) {
                     }
                     histories.push(this.ifb.getHistory(type, p, (symbol, data) => {
                         let entries = parseKlineArray(data);
-                        this.storeData(symbol, entries, 'kline');
+                        this.storeData(symbol, entries, type);
                     }));
                 }
 
@@ -87,7 +87,7 @@ MarketManager.prototype.openAllStreams = function (type, config) {
                     this.ifb.openStream(type, params, (symbol, data) => {
                         let entry = parseKline(data);
                         if (entry.closed) {
-                            this.storeData(symbol, entry, 'kline');
+                            this.storeData(symbol, entry, type);
                         }
                     });
                 });
@@ -96,7 +96,7 @@ MarketManager.prototype.openAllStreams = function (type, config) {
             case 'trades':
                 this.ifb.openStream(type, params, (symbol, data) => {
                     let entry = parseTrade(data);
-                    this.storeData(symbol, entry, 'trade');
+                    this.storeData(symbol, entry, type);
                 });
 
                 break;
@@ -105,7 +105,7 @@ MarketManager.prototype.openAllStreams = function (type, config) {
                 this.ifb.openStream('candlesticks', params, (symbol, data) => {
                     let entry = parseKline(data);
                     if (entry[entry.length - 1].closed) {
-                        this.storeData(symbol, entry, 'record');
+                        this.storeData(symbol, entry, type);
                     }
                 });
 
@@ -128,11 +128,11 @@ MarketManager.prototype.startStreaming = function (type, params) {
     } else {
         this.ifb.getHistory(type, params, (symbol, data) => {
             let entry = parseKlineArray(data);
-            this.storeData(symbol, entry, 'kline' + symbol);
+            this.storeData(symbol, entry, 'klines' + symbol);
         }).then(this.ifb.openStream(type, params, (symbol, data) => {
             let entry = parseKline(data);
             if (entry[entry.length - 1].closed) {
-                this.storeData(symbol, entry, 'kline');
+                this.storeData(symbol, entry, 'klines');
             }
         }));
     }
