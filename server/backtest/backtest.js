@@ -13,8 +13,10 @@ var Backtest = function (backtestManager, emitter) {
 }
 
 Backtest.prototype.simulateStream = function (symbol, source, data) {
+    // for (let i = 0; i < 30; i++) {
     for (let i = 0; i < data.length; i++) {
-        this.btEmitter.emit('backtest', data.slice(0, i + 1));
+        // this.btEmitter.emit('backtest', data.slice(0, i + 1));
+        this.btEmitter.emit('backtest', data[i]);
     }
     this.btEmitter.emit('backtestDone', symbol, source);
 }
@@ -112,6 +114,7 @@ Backtest.prototype.run = function (symbol, source, strategy, params) {
     this.btEmitter.on('backtestDone', (function (symbol, source) {
         console.log(' BACKTEST DONE:', this.testStrat.name);
         let results = this.evaluate(symbol, source);
+        console.log(results);
         this.emitter.emit('backtestData', { strategy: this.testStrat.name, description: this.testStrat.description, flags: this.testStrat.flags, results: results });
     }).bind(this));
 
