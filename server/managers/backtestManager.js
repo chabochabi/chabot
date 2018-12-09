@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const Backtest = require('../backtest/backtest');
+const Indicator = require('../backtest/indicator');
 
 var BacktestManager = function (dataManager, emitter) {
     this.dm = dataManager;
@@ -24,6 +25,16 @@ BacktestManager.prototype.runBacktest = async function (symbol, source, strategy
     }
 
     bt.run(symbol, source, strategy, params);
+}
+
+BacktestManager.prototype.runIndicator = async function (symbol, source, indicator, params) {
+    ind = new Indicator(this);
+
+    if (!this.dm.hasSymbol(symbol, source)) {
+        await this.loadBacktestData(symbol);
+    }
+
+    ind.run(symbol, source, indicator, params);
 }
 
 BacktestManager.prototype.getKlineDataEntry = function (symbol, source, openTime) {

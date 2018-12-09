@@ -1,11 +1,24 @@
 
 var MA = function(frameLength) {
     this.frameLength = frameLength;
+    this.sum = 0;
+    this.frame = [];
+    this.frameIndex = 0;
+    this.maValue = 0;
     this.result = [];
 }
 
 MA.prototype.setFrameLength = function(frameLength) {
     this.frameLength = frameLength;
+}
+
+MA.prototype.update = function (kline) {
+    
+    var last = this.frame[this.frameIndex] || 0;
+    this.frame[this.frameIndex] = kline.close;
+    this.sum += kline.close - last;
+    this.frameIndex = (this.frameIndex + 1) % this.frameLength;
+    this.maValue = this.sum / this.frame.length;
 }
 
 MA.prototype.calc = function (data) {

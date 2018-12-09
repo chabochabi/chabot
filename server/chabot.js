@@ -3,32 +3,31 @@ const DataManager = require('./managers/dataManager');
 const BacktestManager = require('./managers/backtestManager');
 const AnalysisManager = require('./managers/analysisManager');
 const EventEmitter = require('events');
-// const DataInterface = require('./interfaces/ifData');
 const BackendInterface = require('./interfaces/backendInterface')
 const program = require('commander');
 
 var Chabot = function (broadcaster) {
-    emitter = new EventEmitter();
-    this.dm = new DataManager(emitter);
-    this.mm = new MarketManager(this.dm, emitter);
-    this.bm = new BacktestManager(this.dm, emitter);
+    this.emitter = new EventEmitter();
+    this.dm = new DataManager(this.emitter);
+    this.mm = new MarketManager(this.dm, this.emitter);
+    this.bm = new BacktestManager(this.dm, this.emitter);
     this.am = new AnalysisManager(this.dm);
 
-    this.bi = new BackendInterface(this.dm, this.bm, this.am, emitter, broadcaster);
+    this.bi = new BackendInterface(this.dm, this.bm, this.am, this.emitter, broadcaster);
 }
 
 Chabot.prototype.run = async function (mode) {
     switch (mode) {
 
         case 'backtest':
-            let sym = 'ADABTC';
-            // this.bm.runBacktest(sym, 'backtest', 'BasicEMA');
+            let sym = 'ETHBTC';
             let params = {
                 fast: 9,
                 slow: 26,
                 signal: 9
             }
-            this.bm.runBacktest(sym, 'backtest', 'BasicMACD', params);
+            // this.bm.runBacktest(sym, 'backtest', 'BasicMACD', params);
+            this.bm.runBacktest(sym, 'backtest', 'DeltaEMA');
             break;
 
         case 'offline':
@@ -55,11 +54,19 @@ Chabot.prototype.run = async function (mode) {
             break;
 
         case 'test':
-            config = {
-                tosym: 'BTC',
-                interval: '1m'
-            }
-            this.mm.openAllStreams('trades', config);
+            this.bm.runIndicator("ETHBTC", 'backtest', 'EMA');
+            // options = {
+            //     symbol: "ETHBTC",
+            //     source: "backtest",
+            //     indicator: {
+            //         type: "EMA",
+            //         params: {
+            //             frameLength: 10
+            //         }
+            //     }
+            // }
+            // await this.bm.loadBacktestData('ETHBTC');
+            // this.am.calcIndicator(options);
             break;
     }
 }
@@ -72,23 +79,23 @@ module.exports = Chabot;
 
 program
     .version('0.1.0')
-    .option('--ui', 'run with web UI')
+    .option('--live', 'run with live data and web UI')
     .option('--offline', 'run with offline data and web UI')
     .option('--bt', 'backtest with offline data')
     .option('--record', 'record market data')
     .option('--test', 'test stuff')
     .parse(process.argv);
 
-console.log('\n\n',
-    '          __          ___            __         \n',
-    '    ____ |  |__ _____ \\_ |__   _____/  |_  \n',
-    '  _/ ___\\|  |  \\\\__  \\ | __ \\ /  _ \\   __\\  \n',
-    '  \\  \\___|   Y  \\/ __ \\| \\_\\ (  <_> )  |     \n',
-    '   \\___  >___|  (____  /___  /\\____/|__|     \n',
-    '       \\/     \\/     \\/    \\/                \n');
+// console.log('\n\n',
+//     '          __          ___            __         \n',
+//     '    ____ |  |__ _____ \\_ |__   _____/  |_  \n',
+//     '  _/ ___\\|  |  \\\\__  \\ | __ \\ /  _ \\   __\\  \n',
+//     '  \\  \\___|   Y  \\/ __ \\| \\_\\ (  <_> )  |     \n',
+//     '   \\___  >___|  (____  /___  /\\____/|__|     \n',
+//     '       \\/     \\/     \\/    \\/                \n');
 
-if (program.ui) {
-    console.log('\n * with UI\n\n');
+if (program.live) {
+    console.log('\n * with live data and web UI\n\n');
     const server = require('./server');
     // return require('./server');
     return server.start('online');

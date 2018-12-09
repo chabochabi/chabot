@@ -30,7 +30,6 @@ import { CoinDetailComponent } from './coin-detail/coin-detail.component';
 import { AppRoutingModule } from './/app-routing.module';
 import { LiveCoinsComponent } from './live-coins/live-coins.component';
 import { OverviewComponent } from './overview/overview.component';
-import { CoinAnalysisComponent } from './charts/coin-analysis/coin-analysis.component';
 import { AnalysisComponent } from './analysis/analysis.component';
 
 @NgModule({
@@ -40,7 +39,6 @@ import { AnalysisComponent } from './analysis/analysis.component';
     CoinDetailComponent,
     LiveCoinsComponent,
     OverviewComponent,
-    CoinAnalysisComponent,
     AnalysisComponent
   ],
   imports: [

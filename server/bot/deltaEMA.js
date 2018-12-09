@@ -21,16 +21,20 @@ var checkParams = function (params) {
 
 // DO NOT EDIT
 var DeltaEMA = function (params) {
-    this.lastFlag = 0; // 1 for up, 0 for down
-    this.profits = {};
-    this.buy = {};
-    this.flags = {};
     this.params = defaultParams;
     if (checkParams(params)) {
         this.params = params;
     }
     this.name = name;
     this.description = description;
+
+    // for check function
+    this.lastFlag = 0; // 1 for up, 0 for down
+    this.profits = {};
+    this.buy = {};
+    this.flags = {};
+    this.updateCtr = 0;
+
     this.init();
 }
 
@@ -42,13 +46,37 @@ DeltaEMA.prototype.init = function () {
 
 DeltaEMA.prototype.update = function (data) {
 
-    this.shortEMA.calc(data);
-    this.longEMA.calc(data);
+    this.shortEMA.update(data);
+    this.longEMA.update(data);
+    this.updateCtr++;
+    if (this.updateCtr > this.params.long) {
+        this.checkFUCK();
+    }
 
-    // DO NOT CHANGE
-    this.check();
+    // this.shortEMA.calc(data);
+    // this.longEMA.calc(data);
+
+    // // DO NOT CHANGE
+    // this.check();
 }
 
+DeltaEMA.prototype.checkFUCK = function () {
+    var shortValue = this.shortEMA.emaValue;
+    var longValue = this.longEMA.emaValue;
+    var diff = ((shortValue - longValue)/shortValue)*100;
+    var time = this.longEMA.time;
+    var price = this.longEMA.price;
+
+    if (diff >= this.delta && this.lastFlag == 0) {
+        this.flags[time] = 'buy';
+        this.lastFlag = 1;
+        this.record('buy', time, price);
+    } else if (diff <= this.delta && this.lastFlag == 1){
+        this.flags[time] = 'sell';
+        this.lastFlag = 0;
+        this.record('sell', time, price);
+    }
+}
 
 DeltaEMA.prototype.check = function () {
 
