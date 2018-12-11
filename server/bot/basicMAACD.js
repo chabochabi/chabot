@@ -1,8 +1,8 @@
 
-const MACD = require('../indicators/MACD');
+const MAACD = require('../indicators/MAACD');
 
-var name = "BasicMACD";
-var description = "Using EMA: Set a buy flag whenever MACD > SIGNAL";
+var name = "BasicMAACD";
+var description = "Using MA: Set a buy flag whenever MACD > SIGNAL";
 var defaultParams = {
     fast: 12,
     slow: 26,
@@ -42,19 +42,19 @@ var Strategy = function (params) {
 }
 
 Strategy.prototype.init = function() {
-    this.macd = new MACD(this.params.fast, this.params.slow, this.params.signal);
+    this.maacd = new MAACD(this.params.fast, this.params.slow, this.params.signal);
 }
 
 Strategy.prototype.update = function (kline) {
 
-    this.macd.update(kline);
+    this.maacd.update(kline);
 
     this.updateCtr++;
     if (this.updateCtr >= this.params.slow) {
         this.check(kline);
     }
 
-    // this.macd.calc(kline);
+    // this.maacd.calc(kline);
     
     // // DO NOT CHANGE
     // this.check(kline);
@@ -62,7 +62,7 @@ Strategy.prototype.update = function (kline) {
 
 Strategy.prototype.check = function (kline) {
     var diff0 = this.diffs[this.diffIdx] || 0; // latest diff
-    this.diffs[this.diffIdx] = this.macd.macdValue - this.macd.signalValue;
+    this.diffs[this.diffIdx] = this.maacd.macdValue - this.maacd.signalValue;
     this.diffIdx = (this.diffIdx + 1) % 3;
 
     if (this.diffs.length > 2) {
@@ -86,15 +86,15 @@ Strategy.prototype.check = function (kline) {
 
 // Strategy.prototype.check = function () {
 
-//     var signalLen = this.macd.result.signal.length;
-//     var macdLen = this.macd.result.macd.length;
+//     var signalLen = this.maacd.result.signal.length;
+//     var macdLen = this.maacd.result.macd.length;
 
 //     if (signalLen >= 3) {
-//         let diff1 = this.macd.result.macd[macdLen - 1].value - this.macd.result.signal[signalLen - 1].value;
-//         let diff2 = this.macd.result.macd[macdLen - 2].value - this.macd.result.signal[signalLen - 2].value;
-//         let diff3 = this.macd.result.macd[macdLen - 3].value - this.macd.result.signal[signalLen - 3].value;
-//         let time = this.macd.result.macd[macdLen - 1].time + 60000; // close time + 1 ms
-//         let price = this.macd.result.macd[macdLen - 1].price
+//         let diff1 = this.maacd.result.macd[macdLen - 1].value - this.maacd.result.signal[signalLen - 1].value;
+//         let diff2 = this.maacd.result.macd[macdLen - 2].value - this.maacd.result.signal[signalLen - 2].value;
+//         let diff3 = this.maacd.result.macd[macdLen - 3].value - this.maacd.result.signal[signalLen - 3].value;
+//         let time = this.maacd.result.macd[macdLen - 1].time + 60000; // close time + 1 ms
+//         let price = this.maacd.result.macd[macdLen - 1].price
 
 //         if (diff3 < 0 && diff2 >= 0 && diff1 > 0 && this.lastFlag == 0) {
 //             this.flags[time] = 'buy';

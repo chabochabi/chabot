@@ -2,6 +2,7 @@
 const BasicEMA = require('../bot/basicEMA');
 const DeltaEMA = require('../bot/deltaEMA');
 const BasicMACD = require('../bot/basicMACD');
+const BasicMAACD = require('../bot/basicMAACD');
 const EventEmitter = require('events');
 const strategies = require('../bot/strategies');
 
@@ -36,7 +37,6 @@ Backtest.prototype.evaluate = function (symbol, source) {
     console.log('running strategy evaluation ... ', symbol, source);
 
     for (let sellTime in profits) {
-
         let buyTime = profits[sellTime].buy.time;
         let buyKline = this.bm.getKlineDataEntry(symbol, source, parseInt(buyTime));
         let buyPrice = buyKline.open;
@@ -100,6 +100,10 @@ Backtest.prototype.run = function (symbol, source, strategy, params) {
             this.testStrat = new BasicMACD(params);
             break;
 
+        case strategies.BasicMAACD.name:
+            this.testStrat = new BasicMAACD(params);
+            break;
+
         default:
             this.testStrat = new BasicEMA(params);
             break;
@@ -114,7 +118,7 @@ Backtest.prototype.run = function (symbol, source, strategy, params) {
     this.btEmitter.on('backtestDone', (function (symbol, source) {
         console.log(' BACKTEST DONE:', this.testStrat.name);
         let results = this.evaluate(symbol, source);
-        console.log(results);
+        console.log(results.totalRevenue, results.totalRevenuePercent);
         this.emitter.emit('backtestData', { strategy: this.testStrat.name, description: this.testStrat.description, flags: this.testStrat.flags, results: results });
     }).bind(this));
 

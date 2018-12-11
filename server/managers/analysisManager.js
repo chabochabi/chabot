@@ -67,6 +67,14 @@ AnalysisManager.prototype.calcIndicator = function (options) {
                 }
             }
             break;
+        case 'MAACD':
+            indicatorData = {
+                maacd: {
+                    data: this.analyzer.MAACD(this.dm.readAll(options.symbol, options.source), options.indicator.params),
+                    params: options.indicator.params
+                }
+            }
+            break;
         case 'BOLL':
             indicatorData = {
                 boll: {

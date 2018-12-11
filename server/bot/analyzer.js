@@ -4,6 +4,7 @@ const DEMA = require('../indicators/DEMA');
 const TEMA = require('../indicators/TEMA');
 const RSI = require('../indicators/RSI');
 const MACD = require('../indicators/MACD');
+const MAACD = require('../indicators/MAACD');
 const BOLL = require('../indicators/BOLL');
 
 var Analyzer = function () {
@@ -29,6 +30,11 @@ var Analyzer = function () {
             slow: 26,
             signal: 9
         },
+        'MAACD': {
+            fast: 12,
+            slow: 26,
+            signal: 9
+        },
         'BOLL': {
             frameLength: 21,
             multiplier: 2
@@ -41,6 +47,7 @@ var Analyzer = function () {
     this.tema = new TEMA(this.indicators.TEMA.frameLength);
     this.rsi = new RSI(this.indicators.RSI.frameLength);
     this.macd = new MACD(this.indicators.MACD.fast, this.indicators.MACD.slow, this.indicators.MACD.signal);
+    this.maacd = new MAACD(this.indicators.MAACD.fast, this.indicators.MAACD.slow, this.indicators.MAACD.signal);
     this.boll = new BOLL(this.indicators.BOLL.frameLength, this.indicators.BOLL.multiplier);
 }
 
@@ -55,12 +62,14 @@ Analyzer.prototype.calcIndicators = function (symbol) {
     this.TEMA(symbol, 10);
     this.RSI(symbol, 14);
     this.MACD(symbol, 12, 26, 9);
+    this.MAACD(symbol, 12, 26, 9);
     this.BOLL(symbol, 21, 2);
 }
 
 Analyzer.prototype.MA = function (data, params) {
     
-    this.ma.setFrameLength(params.frameLength);
+    this.ma = new MA(params.frameLength);
+    // this.ma.setFrameLength(params.frameLength);
     this.ma.calc(data);
 
     return this.ma.result;
@@ -68,7 +77,8 @@ Analyzer.prototype.MA = function (data, params) {
 
 Analyzer.prototype.EMA = function (data, params) {
 
-    this.ema.setFrameLength(params.frameLength);
+    this.ema = new EMA(params.frameLength);
+    // this.ema.setFrameLength(params.frameLength);
     this.ema.calc(data);
 
     return this.ema.result;
@@ -76,7 +86,8 @@ Analyzer.prototype.EMA = function (data, params) {
 
 Analyzer.prototype.DEMA = function (data, params) {
 
-    this.dema.setFrameLength(params.frameLength);
+    this.dema = new DEMA(params.frameLength);
+    // this.dema.setFrameLength(params.frameLength);
     this.dema.calc(data);
 
     return this.dema.result;
@@ -84,7 +95,8 @@ Analyzer.prototype.DEMA = function (data, params) {
 
 Analyzer.prototype.TEMA = function (data, params) {
 
-    this.tema.setFrameLength(params.frameLength);
+    this.tema = new TEMA(params.frameLength);
+    // this.tema.setFrameLength(params.frameLength);
     this.tema.calc(data);
 
     return this.tema.result;
@@ -92,17 +104,30 @@ Analyzer.prototype.TEMA = function (data, params) {
 
 Analyzer.prototype.MACD = function (data, params) {
 
-    this.macd.setFast(params.fast);
-    this.macd.setSlow(params.slow);
-    this.macd.setSignal(params.signal);
+    this.macd = new MACD(params.fast, params.slow, params.signal);
+    // this.macd.setFast(params.fast);
+    // this.macd.setSlow(params.slow);
+    // this.macd.setSignal(params.signal);
     this.macd.calc(data);
 
     return this.macd.result;
 }
 
+Analyzer.prototype.MAACD = function (data, params) {
+
+    this.maacd = new MAACD(params.fast, params.slow, params.signal);
+    // this.macd.setFast(params.fast);
+    // this.macd.setSlow(params.slow);
+    // this.macd.setSignal(params.signal);
+    this.maacd.calc(data);
+
+    return this.maacd.result;
+}
+
 Analyzer.prototype.RSI = function (data, params) {
     
-    this.rsi.setFrameLength(params.frameLength);
+    this.rse = new RSI(params.frameLength);
+    // this.rsi.setFrameLength(params.frameLength);
     this.rsi.calc(data);
     
     return this.rsi.result;
@@ -110,8 +135,9 @@ Analyzer.prototype.RSI = function (data, params) {
 
 Analyzer.prototype.BOLL = function (data, params) {
 
-    this.boll.setFrameLength(params.frameLength);
-    this.boll.setMultiplier(params.multiplier);
+    this.boll = new BOLL(params.frameLength, params.multiplier);
+    // this.boll.setFrameLength(params.frameLength);
+    // this.boll.setMultiplier(params.multiplier);
     this.boll.calc(data);
 
     return this.boll.result;
