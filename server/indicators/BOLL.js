@@ -1,8 +1,10 @@
+const MA = require('./MA');
 
 // N, K
 var BOLL = function (frameLength, multiplier) {
     this.frameLength = frameLength;
     this.multiplier = multiplier;
+    this.ma = new MA(frameLength);
     this.result = [];
 }
 
@@ -33,6 +35,19 @@ var stdDev = function (data) {
     return Math.sqrt(1 / N * sum);
 }
 
+BOLL.prototype.update = function (kline) {
+    this.ma.update(kline);
+    if (this.ma.frame.length > this.frameLength) {
+        this.emaValue = kline.close * this.multiplier + this.emaValue * (this.multiplier - 1);
+    } else {
+        this.emaValue = this.ma.maValue;
+    }
+}
+
+BOLL.prototype.calc = function (kline) {
+    
+}
+
 BOLL.prototype.calc = function (data) {
 
     let maData = [];
@@ -46,8 +61,8 @@ BOLL.prototype.calc = function (data) {
         let maValue = 0;
         let stdDevValue = 0;
         let upperValue = 0;
-        let lowerValue = 0;
         for (let i = 0; i < data.length; i++) {
+        let lowerValue = 0;
             let entry = data[i];
             if (i <= (N - 1)) {
                 cpSum += entry.close;

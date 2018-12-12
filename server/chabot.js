@@ -20,14 +20,14 @@ Chabot.prototype.run = async function (mode) {
     switch (mode) {
 
         case 'backtest':
-            let sym = 'ETHBTC';
+            let sym = 'ADABTC';
             let params = {
                 fast: 9,
                 slow: 26,
                 signal: 9
             }
-            // this.bm.runBacktest(sym, 'backtest', 'BasicMACD', params);
-            this.bm.runBacktest(sym, 'backtest', 'DeltaEMA');
+            this.bm.runBacktest(sym, 'backtest', 'BasicMACD', params);
+            // this.bm.runBacktest(sym, 'backtest', 'BasicEMA');
             break;
 
         case 'offline':
@@ -54,14 +54,16 @@ Chabot.prototype.run = async function (mode) {
             break;
 
         case 'test':
-            this.bm.runIndicator("ETHBTC", 'backtest', 'EMA');
+            this.bm.runIndicator("ETHBTC", 'backtest', 'MAACD');
             // options = {
             //     symbol: "ETHBTC",
             //     source: "backtest",
             //     indicator: {
-            //         type: "EMA",
+            //         type: "MACD",
             //         params: {
-            //             frameLength: 10
+            //             fast: 12,
+            //             slow: 26,
+            //             signal: 9
             //         }
             //     }
             // }

@@ -15,6 +15,11 @@ var DataManager = function (emitter) {
     };
 }
 
+DataManager.prototype.lastEntry = function (symbol, source) {
+    var last = this.marketData[source][symbol].count();
+    return this.readAll(symbol, source)[last-1];
+}
+
 DataManager.prototype.writeKlineBacktest = function (symbol, data) {
     this.addData(symbol, 'backtest');
     this.marketData.backtest[symbol].insert(data);

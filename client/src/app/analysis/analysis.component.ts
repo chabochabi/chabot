@@ -218,6 +218,9 @@ export class AnalysisComponent implements OnInit {
     let macd = [];
     let signal = [];
     let macdName = 'MACD-' + data[indicator].params['fast'] + '-' + data[indicator].params['slow'];
+    if (indicator === "maacd")
+      macdName = 'MAACD-' + data[indicator].params['fast'] + '-' + data[indicator].params['slow'];
+    
     let signalName = 'Signal-' + data[indicator].params['signal'];
 
     for (let val of data[indicator].data.macd) {
@@ -360,13 +363,13 @@ export class AnalysisComponent implements OnInit {
             id += '_' + data[indicator].params[param];
           }
 
-          if (indicator === 'rsi' || indicator === 'macd') {
+          if (indicator === 'rsi' || indicator === 'macd' || indicator === 'maacd') {
 
             let lastAxisIdx = this.addIndicatorAxis(indicator, id);
 
             if (indicator === 'rsi') {
               this.plotRSI(id, vals, lastAxisIdx, data[indicator].params);
-            } else if (indicator === 'macd') {
+            } else if (indicator === 'macd' || indicator === 'maacd') {
               this.plotMACD(indicator, id, data, lastAxisIdx);
             }
           } else if (indicator === 'boll') {
@@ -452,7 +455,7 @@ export class AnalysisComponent implements OnInit {
     let indicator = id.split('_')[0];
     let deleteIDs = [];
 
-    if (indicator === 'rsi' || indicator === 'macd') {
+    if (indicator === 'rsi' || indicator === 'macd' || indicator == 'maacd') {
 
       let newTop = 0;
       let newHeight = this.SIZES.data.height - this.SIZES.offset;
@@ -482,7 +485,7 @@ export class AnalysisComponent implements OnInit {
 
         deleteIDs.push(indicator);
       } else {
-        if (indicator == 'macd') {
+        if (indicator === 'macd' || indicator === "maacd") {
           deleteIDs.push(id + ':macd');
           deleteIDs.push(id + ':signal');
         } else {

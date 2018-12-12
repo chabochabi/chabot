@@ -38,6 +38,10 @@ BacktestManager.prototype.runIndicator = async function (symbol, source, indicat
 }
 
 BacktestManager.prototype.getKlineDataEntry = function (symbol, source, openTime) {
+    var latestEntry = this.dm.lastEntry(symbol, source);
+    if (latestEntry.openTime < openTime) {
+        return latestEntry;
+    }
     return this.dm.getData(symbol, source, openTime)[0];
 }
 
