@@ -1,6 +1,7 @@
 
 const BasicEMA = require('../bot/basicEMA');
 const DeltaEMA = require('../bot/deltaEMA');
+const BasicTEMA = require('../bot/basicTEMA');
 const BasicMACD = require('../bot/basicMACD');
 const BasicMAACD = require('../bot/basicMAACD');
 const EventEmitter = require('events');
@@ -102,6 +103,10 @@ Backtest.prototype.run = function (symbol, source, strategy, params) {
 
         case strategies.BasicMAACD.name:
             this.testStrat = new BasicMAACD(params);
+            break;
+
+        case strategies.BasicTEMA.name:
+            this.testStrat = new BasicTEMA(params);
             break;
 
         default:

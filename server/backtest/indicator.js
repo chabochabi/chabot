@@ -1,6 +1,7 @@
 
 const MA = require("../indicators/MA");
 const EMA = require("../indicators/EMA");
+const TEMA = require("../indicators/TEMA");
 const MAACD = require("../indicators/MAACD");
 const EventEmitter = require('events');
 
@@ -10,8 +11,8 @@ var Indicator = function (backtestManager) {
 }
 
 Indicator.prototype.simulateStream = function (data) {
-    // for (let i = 0; i < data.length; i++) {
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < data.length; i++) {
+        // for (let i = 0; i < 30; i++) {
         this.emitter.emit('dataEntry', data[i]);
     }
     this.emitter.emit('simulationDone');
@@ -19,7 +20,7 @@ Indicator.prototype.simulateStream = function (data) {
 
 // TODO check params and use them
 Indicator.prototype.run = function (symbol, source, indicator, params) {
-    console.log(indicator)
+    console.log(indicator, symbol, source)
     switch (indicator) {
         case "MA":
             this.indicator = new MA(10);
@@ -29,8 +30,12 @@ Indicator.prototype.run = function (symbol, source, indicator, params) {
             this.indicator = new EMA(10);
             break;
 
+        case "TEMA":
+            this.indicator = new TEMA(10);
+            break;
+
         case "MAACD":
-            this.indicator = new MAACD(12,26,9);
+            this.indicator = new MAACD(12, 26, 9);
             break;
 
         default:
@@ -39,6 +44,7 @@ Indicator.prototype.run = function (symbol, source, indicator, params) {
     }
 
     this.emitter.on('dataEntry', (function (data) {
+        // console.log(this.indicator)
         this.indicator.update(data);
     }).bind(this));
 

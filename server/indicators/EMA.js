@@ -17,11 +17,9 @@ EMA.prototype.setFrameLength = function(frameLength) {
 EMA.prototype.update = function (kline) {
     this.ma.update(kline);
     if (this.ma.frame.length == this.frameLength) {
-        // console.log(this.ma.frame.length == this.frameLength);
         this.emaValue = kline.close * this.multiplier + this.emaValue * (1 - this.multiplier);
     } else {
         this.emaValue = this.ma.maValue;
-        // this.emaValue = kline.close;
     }
 }
 
