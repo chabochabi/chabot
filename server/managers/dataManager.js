@@ -1,11 +1,11 @@
 const loki = require('lokijs');
 const fs = require('fs');
 
-class DataManager {
+var MAXCOUNT_KLINE = 1440; // 24 hrs
+var MAXCOUNT_TRADE = 1440; // 24 hrs
+var DATADIR = '/Users/chabochabito/Documents/crypto/data/';
 
-    MAXCOUNT_KLINE = 1440; // 24 hrs
-    MAXCOUNT_TRADE = 1440; // 24 hrs
-    DATADIR = '/Users/chabochabito/Documents/crypto/data/';
+class DataManager {
 
     constructor(emitter) {
         this.db = new loki('coins.json')
