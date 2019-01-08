@@ -52,11 +52,11 @@ class Analyzer {
         this.boll = new BOLL(this.indicators.BOLL.frameLength, this.indicators.BOLL.multiplier);
     }
 
-    getIndicators () {
+    getIndicators() {
         return this.indicators;
     }
 
-    calcIndicators (symbol) {
+    calcIndicators(symbol) {
         this.MA(symbol, 15);
         this.EMA(symbol, 10);
         this.DEMA(symbol, 10);
@@ -67,7 +67,7 @@ class Analyzer {
         this.BOLL(symbol, 21, 2);
     }
 
-    MA (data, params) {
+    MA(data, params) {
 
         this.ma = new MA(params.frameLength);
         this.ma.calc(data);
@@ -75,7 +75,7 @@ class Analyzer {
         return this.ma.result;
     }
 
-    EMA (data, params) {
+    EMA(data, params) {
 
         this.ema = new EMA(params.frameLength);
         this.ema.calc(data);
@@ -83,7 +83,7 @@ class Analyzer {
         return this.ema.result;
     }
 
-    DEMA (data, params) {
+    DEMA(data, params) {
 
         this.dema = new DEMA(params.frameLength);
         this.dema.calc(data);
@@ -91,7 +91,7 @@ class Analyzer {
         return this.dema.result;
     }
 
-    TEMA (data, params) {
+    TEMA(data, params) {
 
         this.tema = new TEMA(params.frameLength);
         this.tema.calc(data);
@@ -99,7 +99,7 @@ class Analyzer {
         return this.tema.result;
     }
 
-    MACD (data, params) {
+    MACD(data, params) {
 
         this.macd = new MACD(params.fast, params.slow, params.signal);
         this.macd.calc(data);
@@ -107,7 +107,7 @@ class Analyzer {
         return this.macd.result;
     }
 
-    MAACD (data, params) {
+    MAACD(data, params) {
 
         this.maacd = new MAACD(params.fast, params.slow, params.signal);
         this.maacd.calc(data);
@@ -115,7 +115,7 @@ class Analyzer {
         return this.maacd.result;
     }
 
-    RSI (data, params) {
+    RSI(data, params) {
 
         this.rsi = new RSI(params.frameLength);
         this.rsi.calc(data);
@@ -123,7 +123,7 @@ class Analyzer {
         return this.rsi.result;
     }
 
-    BOLL (data, params) {
+    BOLL(data, params) {
 
         this.boll = new BOLL(params.frameLength, params.multiplier);
         this.boll.calc(data);

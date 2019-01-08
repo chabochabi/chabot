@@ -9,7 +9,7 @@ var defaultParams = {
     signal: 9
 };
 
-function checkParams (params) {
+function checkParams(params) {
     if (!params)
         return false;
     for (let p in defaultParams) {

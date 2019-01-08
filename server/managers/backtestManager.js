@@ -20,7 +20,7 @@ class BacktestManager {
     }
 
     async runBacktest(symbol, source, strategy, params) {
-        bt = new Backtest(this, this.emitter);
+        var bt = new Backtest(this, this.emitter);
 
         if (!this.dm.hasSymbol(symbol, source)) {
             await this.loadBacktestData(symbol);
@@ -30,7 +30,7 @@ class BacktestManager {
     }
 
     async runIndicator(symbol, source, indicator, params) {
-        ind = new Indicator(this);
+        var ind = new Indicator(this);
 
         if (!this.dm.hasSymbol(symbol, source)) {
             await this.loadBacktestData(symbol);

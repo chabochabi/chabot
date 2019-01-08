@@ -43,12 +43,12 @@ class BasicEMA {
         this.init();
     }
 
-    init () {
+    init() {
         this.ema1 = new EMA(this.params.short);
         this.ema2 = new EMA(this.params.long);
     }
 
-    update (kline) {
+    update(kline) {
 
         this.ema1.update(kline);
         this.ema2.update(kline);
@@ -59,7 +59,7 @@ class BasicEMA {
         }
     }
 
-    check (kline) {
+    check(kline) {
         var diff0 = this.diffs[this.diffIdx] || 0; // latest diff
         this.diffs[this.diffIdx] = this.ema1.emaValue - this.ema2.emaValue;
         this.diffIdx = (this.diffIdx + 1) % 3;
@@ -83,7 +83,7 @@ class BasicEMA {
         }
     }
 
-    record (action, time, price) {
+    record(action, time, price) {
         if (action == 'buy') {
             this.buy = {
                 time: time,
