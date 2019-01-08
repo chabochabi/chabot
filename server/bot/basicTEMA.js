@@ -1,13 +1,12 @@
 
-const MAACD = require('../indicators/MAACD');
+const TEMA = require('../indicators/TEMA');
 
-var name = "BasicMAACD";
-var description = "Using MA: Set a buy flag whenever MACD > SIGNAL";
+var name = "BasicTEMA";
+var description = "Take a short and a long TEMA. Mark Buy Flag whenever shortTEMA goes higher than longTEMA, mark Sell Flag when shortTEMA goes lower than longTEMA.";
 var defaultParams = {
-    fast: 12,
-    slow: 26,
-    signal: 9
-};
+    short: 15,
+    long: 30
+}
 
 function checkParams(params) {
     if (!params)
@@ -19,9 +18,18 @@ function checkParams(params) {
     return true;
 }
 
-class BasicMAACD {
+class BasicTEMA {
 
     constructor(params) {
+
+        this.params = defaultParams;
+        if ((checkParams(params))) {
+            this.params = params;
+        }
+        this.name = name;
+        this.description = description;
+
+        // for check function
         this.lastFlag = 0; // 1 for up, 0 for down
         this.profits = {};
         this.buy = {};
@@ -33,37 +41,28 @@ class BasicMAACD {
         this.diff2 = false;
         this.diffIdx = 0;
 
-        this.params = defaultParams;
-        if (checkParams(params)) {
-            this.params = params;
-        }
-        this.name = name;
-        this.description = description;
         this.init();
     }
 
     init() {
-        this.maacd = new MAACD(this.params.fast, this.params.slow, this.params.signal);
+        this.tema1 = new TEMA(this.params.short);
+        this.tema2 = new TEMA(this.params.long);
     }
 
     update(kline) {
 
-        this.maacd.update(kline);
+        this.tema1.update(kline);
+        this.tema2.update(kline);
 
         this.updateCtr++;
-        if (this.updateCtr >= this.params.slow) {
+        if (this.updateCtr >= this.params.long) {
             this.check(kline);
         }
-
-        // this.maacd.calc(kline);
-
-        // // DO NOT CHANGE
-        // this.check(kline);
     }
 
     check(kline) {
         var diff0 = this.diffs[this.diffIdx] || 0; // latest diff
-        this.diffs[this.diffIdx] = this.maacd.macdValue - this.maacd.signalValue;
+        this.diffs[this.diffIdx] = this.tema1.temaValue - this.tema2.temaValue;
         this.diffIdx = (this.diffIdx + 1) % 3;
 
         if (this.diffs.length > 2) {
@@ -103,4 +102,4 @@ class BasicMAACD {
     }
 }
 
-module.exports = BasicMAACD;
+module.exports = BasicTEMA;

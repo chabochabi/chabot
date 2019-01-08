@@ -1,11 +1,14 @@
 
 
-var Broadcast = function (stream) {
-    this.stream = stream;
-}
+class Broadcast {
 
-Broadcast.prototype.send = function (symbol, data) {
-    this.stream(symbol, data);
+    constructor(stream) {
+        this.stream = stream;
+    }
+
+    send(symbol, data) {
+        this.stream(symbol, data);
+    }
 }
 
 module.exports = Broadcast;

@@ -1,98 +1,95 @@
 const MA = require('./MA');
 
 // N, K
-var BOLL = function (frameLength, multiplier) {
-    this.frameLength = frameLength;
-    this.multiplier = multiplier;
-    this.ma = new MA(frameLength);
-    this.result = [];
-}
-
-BOLL.prototype.setFrameLength = function (frameLength) {
-    this.frameLength = frameLength;
-}
-
-BOLL.prototype.setMultiplier = function (multiplier) {
-    this.multiplier = multiplier;
-}
-
-var stdDev = function (data) {
-
-    let mu = 0;
-    let N = data.length;
-    let sum = 0;
-
-    for (let x of data) {
-        mu += x.close;
+class BOLL {
+    constructor(frameLength, multiplier) {
+        this.frameLength = frameLength;
+        this.multiplier = multiplier;
+        this.ma = new MA(frameLength);
+        this.result = [];
     }
 
-    mu = mu/N;
-
-    for (let x of data) {
-        sum += (x.close - mu) ** 2;
+    setFrameLength (frameLength) {
+        this.frameLength = frameLength;
     }
 
-    return Math.sqrt(1 / N * sum);
-}
-
-BOLL.prototype.update = function (kline) {
-    this.ma.update(kline);
-    if (this.ma.frame.length > this.frameLength) {
-        this.emaValue = kline.close * this.multiplier + this.emaValue * (this.multiplier - 1);
-    } else {
-        this.emaValue = this.ma.maValue;
+    setMultiplier (multiplier) {
+        this.multiplier = multiplier;
     }
-}
 
-BOLL.prototype.calc = function (kline) {
-    
-}
+    stdDev (data) {
 
-BOLL.prototype.calc = function (data) {
+        let mu = 0;
+        let N = data.length;
+        let sum = 0;
 
-    let maData = [];
-    let upperBoll = [];
-    let lowerBoll = [];
-    let N = this.frameLength;
-    let K = this.multiplier;
+        for (let x of data) {
+            mu += x.close;
+        }
 
-    if (data.length >= N) {
-        let cpSum = 0;
-        let maValue = 0;
-        let stdDevValue = 0;
-        let upperValue = 0;
-        for (let i = 0; i < data.length; i++) {
-        let lowerValue = 0;
-            let entry = data[i];
-            if (i <= (N - 1)) {
-                cpSum += entry.close;
-            } else {
-                maValue = cpSum / N;
-                cpSum += (entry.close - data[i - N].close);
-                stdDevValue = stdDev(data.slice(i - N, i + 1));
-                upperValue = maValue + K * stdDevValue;
-                lowerValue = maValue - K * stdDevValue;
-                upperBoll.push({
-                    time: entry.closeTime + 1,
-                    value: upperValue
-                });
-                lowerBoll.push({
-                    time: entry.closeTime + 1,
-                    value: lowerValue
-                });
-                maData.push({
-                    time: entry.closeTime + 1,
-                    value: maValue
-                });
-            }
+        mu = mu / N;
+
+        for (let x of data) {
+            sum += (x.close - mu) ** 2;
+        }
+
+        return Math.sqrt(1 / N * sum);
+    }
+
+    update (kline) {
+        this.ma.update(kline);
+        if (this.ma.frame.length > this.frameLength) {
+            this.emaValue = kline.close * this.multiplier + this.emaValue * (this.multiplier - 1);
+        } else {
+            this.emaValue = this.ma.maValue;
         }
     }
-    this.result = {
-        ma: maData,
-        lowerBoll: lowerBoll,
-        upperBoll: upperBoll
-    };
-    // console.log(this.result);
+
+    calc (data) {
+
+        let maData = [];
+        let upperBoll = [];
+        let lowerBoll = [];
+        let N = this.frameLength;
+        let K = this.multiplier;
+
+        if (data.length >= N) {
+            let cpSum = 0;
+            let maValue = 0;
+            let stdDevValue = 0;
+            let upperValue = 0;
+            for (let i = 0; i < data.length; i++) {
+                let lowerValue = 0;
+                let entry = data[i];
+                if (i <= (N - 1)) {
+                    cpSum += entry.close;
+                } else {
+                    maValue = cpSum / N;
+                    cpSum += (entry.close - data[i - N].close);
+                    stdDevValue = stdDev(data.slice(i - N, i + 1));
+                    upperValue = maValue + K * stdDevValue;
+                    lowerValue = maValue - K * stdDevValue;
+                    upperBoll.push({
+                        time: entry.closeTime + 1,
+                        value: upperValue
+                    });
+                    lowerBoll.push({
+                        time: entry.closeTime + 1,
+                        value: lowerValue
+                    });
+                    maData.push({
+                        time: entry.closeTime + 1,
+                        value: maValue
+                    });
+                }
+            }
+        }
+        this.result = {
+            ma: maData,
+            lowerBoll: lowerBoll,
+            upperBoll: upperBoll
+        };
+    }
 }
 
 module.exports = BOLL;
