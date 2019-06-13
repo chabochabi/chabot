@@ -7,140 +7,129 @@ const MACD = require('../indicators/MACD');
 const MAACD = require('../indicators/MAACD');
 const BOLL = require('../indicators/BOLL');
 
-var Analyzer = function () {
+class Analyzer {
+    constructor() {
 
-    this.indicators = {
-        'MA': {
-            frameLength: 15
-        },
-        'EMA': {
-            frameLength: 10
-        },
-        'DEMA': {
-            frameLength: 10
-        },
-        'TEMA': {
-            frameLength: 10
-        },
-        'RSI': {
-            frameLength: 14
-        },
-        'MACD': {
-            fast: 12,
-            slow: 26,
-            signal: 9
-        },
-        'MAACD': {
-            fast: 12,
-            slow: 26,
-            signal: 9
-        },
-        'BOLL': {
-            frameLength: 21,
-            multiplier: 2
-        }
-    };
+        this.indicators = {
+            'MA': {
+                frameLength: 15
+            },
+            'EMA': {
+                frameLength: 10
+            },
+            'DEMA': {
+                frameLength: 10
+            },
+            'TEMA': {
+                frameLength: 10
+            },
+            'RSI': {
+                frameLength: 14
+            },
+            'MACD': {
+                fast: 12,
+                slow: 26,
+                signal: 9
+            },
+            'MAACD': {
+                fast: 12,
+                slow: 26,
+                signal: 9
+            },
+            'BOLL': {
+                frameLength: 21,
+                multiplier: 2
+            }
+        };
 
-    this.ma = new MA(this.indicators.MA.frameLength);
-    this.ema = new EMA(this.indicators.EMA.frameLength);
-    this.dema = new DEMA(this.indicators.DEMA.frameLength);
-    this.tema = new TEMA(this.indicators.TEMA.frameLength);
-    this.rsi = new RSI(this.indicators.RSI.frameLength);
-    this.macd = new MACD(this.indicators.MACD.fast, this.indicators.MACD.slow, this.indicators.MACD.signal);
-    this.maacd = new MAACD(this.indicators.MAACD.fast, this.indicators.MAACD.slow, this.indicators.MAACD.signal);
-    this.boll = new BOLL(this.indicators.BOLL.frameLength, this.indicators.BOLL.multiplier);
-}
+        this.ma = new MA(this.indicators.MA.frameLength);
+        this.ema = new EMA(this.indicators.EMA.frameLength);
+        this.dema = new DEMA(this.indicators.DEMA.frameLength);
+        this.tema = new TEMA(this.indicators.TEMA.frameLength);
+        this.rsi = new RSI(this.indicators.RSI.frameLength);
+        this.macd = new MACD(this.indicators.MACD.fast, this.indicators.MACD.slow, this.indicators.MACD.signal);
+        this.maacd = new MAACD(this.indicators.MAACD.fast, this.indicators.MAACD.slow, this.indicators.MAACD.signal);
+        this.boll = new BOLL(this.indicators.BOLL.frameLength, this.indicators.BOLL.multiplier);
+    }
 
-Analyzer.prototype.getIndicators = function () {
-    return this.indicators;
-}
+    getIndicators() {
+        return this.indicators;
+    }
 
-Analyzer.prototype.calcIndicators = function (symbol) {
-    this.MA(symbol, 15);
-    this.EMA(symbol, 10);
-    this.DEMA(symbol, 10);
-    this.TEMA(symbol, 10);
-    this.RSI(symbol, 14);
-    this.MACD(symbol, 12, 26, 9);
-    this.MAACD(symbol, 12, 26, 9);
-    this.BOLL(symbol, 21, 2);
-}
+    calcIndicators(symbol) {
+        this.MA(symbol, 15);
+        this.EMA(symbol, 10);
+        this.DEMA(symbol, 10);
+        this.TEMA(symbol, 10);
+        this.RSI(symbol, 14);
+        this.MACD(symbol, 12, 26, 9);
+        this.MAACD(symbol, 12, 26, 9);
+        this.BOLL(symbol, 21, 2);
+    }
 
-Analyzer.prototype.MA = function (data, params) {
-    
-    this.ma = new MA(params.frameLength);
-    // this.ma.setFrameLength(params.frameLength);
-    this.ma.calc(data);
+    MA(data, params) {
 
-    return this.ma.result;
-}
+        this.ma = new MA(params.frameLength);
+        this.ma.calc(data);
 
-Analyzer.prototype.EMA = function (data, params) {
+        return this.ma.result;
+    }
 
-    this.ema = new EMA(params.frameLength);
-    // this.ema.setFrameLength(params.frameLength);
-    this.ema.calc(data);
+    EMA(data, params) {
 
-    return this.ema.result;
-}
+        this.ema = new EMA(params.frameLength);
+        this.ema.calc(data);
 
-Analyzer.prototype.DEMA = function (data, params) {
+        return this.ema.result;
+    }
 
-    this.dema = new DEMA(params.frameLength);
-    // this.dema.setFrameLength(params.frameLength);
-    this.dema.calc(data);
+    DEMA(data, params) {
 
-    return this.dema.result;
-}
+        this.dema = new DEMA(params.frameLength);
+        this.dema.calc(data);
 
-Analyzer.prototype.TEMA = function (data, params) {
+        return this.dema.result;
+    }
 
-    this.tema = new TEMA(params.frameLength);
-    // this.tema.setFrameLength(params.frameLength);
-    this.tema.calc(data);
+    TEMA(data, params) {
 
-    return this.tema.result;
-}
+        this.tema = new TEMA(params.frameLength);
+        this.tema.calc(data);
 
-Analyzer.prototype.MACD = function (data, params) {
+        return this.tema.result;
+    }
 
-    this.macd = new MACD(params.fast, params.slow, params.signal);
-    // this.macd.setFast(params.fast);
-    // this.macd.setSlow(params.slow);
-    // this.macd.setSignal(params.signal);
-    this.macd.calc(data);
+    MACD(data, params) {
 
-    return this.macd.result;
-}
+        this.macd = new MACD(params.fast, params.slow, params.signal);
+        this.macd.calc(data);
 
-Analyzer.prototype.MAACD = function (data, params) {
+        return this.macd.result;
+    }
 
-    this.maacd = new MAACD(params.fast, params.slow, params.signal);
-    // this.macd.setFast(params.fast);
-    // this.macd.setSlow(params.slow);
-    // this.macd.setSignal(params.signal);
-    this.maacd.calc(data);
+    MAACD(data, params) {
 
-    return this.maacd.result;
-}
+        this.maacd = new MAACD(params.fast, params.slow, params.signal);
+        this.maacd.calc(data);
 
-Analyzer.prototype.RSI = function (data, params) {
-    
-    this.rse = new RSI(params.frameLength);
-    // this.rsi.setFrameLength(params.frameLength);
-    this.rsi.calc(data);
-    
-    return this.rsi.result;
-}
+        return this.maacd.result;
+    }
 
-Analyzer.prototype.BOLL = function (data, params) {
+    RSI(data, params) {
 
-    this.boll = new BOLL(params.frameLength, params.multiplier);
-    // this.boll.setFrameLength(params.frameLength);
-    // this.boll.setMultiplier(params.multiplier);
-    this.boll.calc(data);
+        this.rsi = new RSI(params.frameLength);
+        this.rsi.calc(data);
 
-    return this.boll.result;
+        return this.rsi.result;
+    }
+
+    BOLL(data, params) {
+
+        this.boll = new BOLL(params.frameLength, params.multiplier);
+        this.boll.calc(data);
+
+        return this.boll.result;
+    }
 }
 
 module.exports = Analyzer;

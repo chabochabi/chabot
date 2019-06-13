@@ -1,55 +1,54 @@
 
-var RSI = function(frameLength) {
-    this.frameLength = frameLength;
-    this.result = [];
-}
+const MA = require('../indicators/MA');
 
-var sum = function (array) {
-    return array.reduce((a, b) => a + b, 0);
-}
+class RSI {
 
-RSI.prototype.setFrameLength = function(frameLength) {
-    this.frameLength = frameLength;
-}
-
-RSI.prototype.calc = function(data) {
-    let rsiData = [];
-    if (data.length >= this.frameLength) {
-        let U = 0;
-        let D = 0;
-        let frameU = [];
-        let frameD = [];
-        for (let i = 0; i < data.length; i++) {
-            let entry = data[i];
-            if (i > 0) {
-                let prevEntry = data[i - 1];
-                if (entry.close > prevEntry.close) {
-                    U = entry.close - prevEntry.close;
-                    D = 0;
-                } else if (entry.close < prevEntry.close) {
-                    U = 0;
-                    D = prevEntry.close - entry.close;
-                } else {
-                    U = 0;
-                    D = 0;
-                }
-            }
-            if (frameU.length >= this.frameLength) {
-                rsiData.push({
-                    time: entry.openTime,
-                    value: 100 - (100 / (1 + (sum(frameU) / sum(frameD))))
-                });
-                frameU.shift();
-                frameD.shift();
-                frameU.push(U);
-                frameD.push(D);
-            } else {
-                frameU.push(U);
-                frameD.push(D);
-            }
-        }
+    constructor(frameLength) {
+        this.frameLength = frameLength;
+        this.maU = new MA(this.frameLength);
+        this.maD = new MA(this.frameLength);
+        this.prevClose = 0;
+        this.rsiValue = 0;
+        this.result = [];
     }
-    this.result = rsiData;
+
+    setFrameLength(frameLength) {
+        this.frameLength = frameLength;
+    }
+
+    update(kline) {
+        let U = 0, D = 0;
+        if (this.prevClose != 0) {
+            if (kline.close > this.prevClose) {
+                U = kline.close - this.prevClose;
+                D = 0;
+            } else if (kline.close < this.prevClose) {
+                U = 0;
+                D = this.prevClose - kline.close
+            }
+
+            this.maU.update({ close: U });
+            this.maD.update({ close: D });
+        }
+
+        if (this.maU.frame.length == this.frameLength) {
+            let RS = this.maU.maValue / this.maD.maValue;
+            this.rsiValue = 100 - (100/(1+RS));
+        }
+
+        this.prevClose = kline.close;
+    }
+
+    calc(data) {
+        data.forEach(kline => {
+            this.update(kline);
+            this.result.push({
+                time: kline.openTime,
+                value: this.rsiValue,
+                price: kline.close
+            });
+        });
+    }
 }
 
 module.exports = RSI;

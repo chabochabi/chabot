@@ -54,17 +54,20 @@ Chabot.prototype.run = async function (mode) {
             break;
 
         case 'test':
-            this.bm.runIndicator("ETHBTC", 'backtest', 'TEMA');
+            this.bm.runIndicator("ETHBTC", 'backtest', 'BOLL');
             // options = {
             //     symbol: "ETHBTC",
             //     source: "backtest",
             //     indicator: {
-            //         type: "MACD",
+            //         type: "RSI",
             //         params: {
-            //             fast: 12,
-            //             slow: 26,
-            //             signal: 9
+            //             frameLength: 14
             //         }
+            //         // params: {
+            //         //     fast: 12,
+            //         //     slow: 26,
+            //         //     signal: 9
+            //         // }
             //     }
             // }
             // await this.bm.loadBacktestData('ETHBTC');
